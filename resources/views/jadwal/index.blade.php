@@ -20,7 +20,7 @@
         }
     </style>
 
-    <h1 id="" class="text-center my-3">Daftar Jadwal Mata Kuliah</h1>
+    <h1 class="text-center my-3">Daftar Jadwal Mata Kuliah</h1>
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambah" style="margin-bottom: 20px">
         Tambah Data
