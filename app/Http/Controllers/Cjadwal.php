@@ -19,34 +19,42 @@ class Cjadwal extends Controller
      * Menampilkan daftar jadwal
      */
     public function index(Request $request)
-    {
-        // Mengambil data semester dari tabel matkul, tetapi hanya jika ada data di tabel jadwal
-        $semesters = Mmatkul::whereHas('jadwal') // Pastikan hanya semester dengan jadwal
-            ->select('smt')
-            ->distinct()
-            ->pluck('smt');
+{
+    // Mengambil data semester dari tabel matkul, tetapi hanya jika ada data di tabel jadwal
+    $semesters = Mmatkul::whereHas('jadwal') // Pastikan hanya semester dengan jadwal
+        ->select('smt')
+        ->distinct()
+        ->pluck('smt');
 
-        // Mengambil smt dari request untuk filter
-        $smt = $request->get('smt');
+    // Mengambil data program studi dari tabel prodi
+    $prodiList = Mprodi::select('id', 'nama_prodi')->distinct()->pluck('nama_prodi', 'id'); // Untuk dropdown
 
-        // Mengambil data jadwal dengan filter smt (jika ada)
-        $jadwal = Mjadwal::with(['dosen', 'ruangan', 'matkul', 'prodi'])
-            ->when($smt, function ($query, $smt) {
-                $query->whereHas('matkul', function ($q) use ($smt) {
-                    $q->where('smt', $smt);
-                });
-            })
-            ->get();
+    // Mengambil smt dan prodi dari request untuk filter
+    $smt = $request->get('smt');
+    $prodi = $request->get('prodi');
 
-        // Data lain untuk dropdown
-        $matkul = Mmatkul::all();
-        $dosen = Mdosen::all();
-        $ruangan = Mruangan::all();
-        $prodi = Mprodi::all();
+    // Mengambil data jadwal dengan filter smt dan prodi (jika ada)
+    $jadwal = Mjadwal::with(['dosen', 'ruangan', 'matkul', 'prodi'])
+        ->when($smt, function ($query, $smt) {
+            $query->whereHas('matkul', function ($q) use ($smt) {
+                $q->where('smt', $smt);
+            });
+        })
+        ->when($prodi, function ($query, $prodi) {
+            $query->where('id_prodi', $prodi);  // Filter berdasarkan id_prodi
+        })
+        ->get();
 
-        // Mengirim semua data ke view
-        return view('jadwal.index', compact('jadwal', 'matkul', 'dosen', 'ruangan', 'prodi', 'semesters'));
-    }
+    // Data lain untuk dropdown
+    $matkul = Mmatkul::all();
+    $dosen = Mdosen::all();
+    $ruangan = Mruangan::all();
+    $prodi = Mprodi::all();
+
+    // Mengirim semua data ke view
+    return view('jadwal.index', compact('jadwal', 'matkul', 'dosen', 'ruangan', 'prodiList', 'prodi', 'semesters'));
+}
+
 
     public function checkAvailableRooms(Request $request)
     {

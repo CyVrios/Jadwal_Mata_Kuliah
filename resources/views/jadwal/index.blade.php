@@ -53,7 +53,9 @@
         </div>
     </div>
 
-    <form method="GET" action="{{ route('jadwal.index') }}">
+<div class="mb-3">
+    <form method="GET" action="{{ route('jadwal.index') }}" >
+        <!-- Filter Semester -->
         <label for="smt">Filter Semester:</label>
         <select name="smt" id="smt" onchange="this.form.submit()">
             <option value="">Semua Semester</option>
@@ -63,9 +65,19 @@
                 </option>
             @endforeach
         </select>
+    
+        <!-- Filter Prodi -->
+        <label for="prodi">Filter Prodi:</label>
+        <select name="prodi" id="prodi" onchange="this.form.submit()">
+            <option value="">Semua Prodi</option>
+            @foreach ($prodiList as $id => $nama_prodi)
+                <option value="{{ $id }}" {{ request('prodi') == $id ? 'selected' : '' }}>
+                    {{ $nama_prodi }}
+                </option>
+            @endforeach
+        </select>
     </form>
-
-
+</div>
 
     <table id="table" class="table table-bordered table-hover display">
         <thead>
@@ -153,8 +165,8 @@
                         @csrf
                         <input type="hidden" name="debug" value="1">
                         <div class="form-group">
-                            Hari:
-                            <select name="hari" class="form-control" required>
+                            <label for="hari">Hari:</label>
+                            <select name="hari" id="hari" class="form-control" required>
                                 <option value="">-- Pilih Hari --</option>
                                 <option value="Senin">Senin</option>
                                 <option value="Selasa">Selasa</option>
@@ -162,35 +174,36 @@
                                 <option value="Kamis">Kamis</option>
                                 <option value="Jumat">Jumat</option>
                                 <option value="Sabtu">Sabtu</option>
+                                <option value="Minggu">Minggu</option>
                             </select>
                         </div>
+                        
                         <div class="form-group">
-                            Jam Mulai:
-                            <input type="time" name="jam_mulai" class="form-control" required>
+                            <label for="jam_mulai">Jam Mulai:</label>
+                            <input type="time" name="jam_mulai" id="jam_mulai" class="form-control" required>
                         </div>
+                        
                         <div class="form-group">
-                            Jam Selesai:
-                            <input type="time" name="jam_selesai" class="form-control" required>
+                            <label for="jam_selesai">Jam Selesai:</label>
+                            <input type="time" name="jam_selesai" id="jam_selesai" class="form-control" required>
                         </div>
+                        
                         <div class="form-group">
-                            <label for="check-availability">Cek Ketersediaan Ruangan:</label>
+                            <label for="availability">Ketersediaan Ruangan:</label>
                             <div class="d-flex align-items-center">
-                                <button type="button" class="btn btn-info" id="check-availability">Cek Ruangan</button>
-                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
-                                    tersedia.</span>
-                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
-                                    ada ruangan kosong.</span>
+                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
+                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="id_ruangan">Ruangan:</label>
                             <select name="id_ruangan" id="id_ruangan" class="form-control" required>
                                 <option value="">-- Pilih Ruangan --</option>
-                                @foreach ($ruangan as $ruang)
-                                    <option value="{{ $ruang->id }}">{{ $ruang->nama_ruangan }}</option>
-                                @endforeach
+                                <!-- Options akan diisi otomatis melalui JavaScript -->
                             </select>
                         </div>
+                        
                         <div class="form-group">
                             Mata Kuliah:
                             <select name="kode_matkul" class="form-control">
@@ -198,7 +211,7 @@
                                 @foreach ($matkul as $matkuls)
                                     <option value="{{ $matkuls->id }}">{{ $matkuls->kode_matkul }} -
                                         {{ $matkuls->nama_matkul }} </option>
-                                        {{-- - {{ $matkuls->prodi->nama_prodi }} --}}
+                                    {{-- - {{ $matkuls->prodi->nama_prodi }} --}}
                                 @endforeach
                             </select>
                         </div>
@@ -232,7 +245,7 @@
                             Kelas:
                             <input type="text" name="kelas" class="form-control">
                             {{-- <select name="id_kelas" class="form-control"> --}}
-                                {{-- <option value="">-- Pilih Kelas --</option>
+                            {{-- <option value="">-- Pilih Kelas --</option>
                                 @foreach ($kelas as $kelasItem)
                                     <option value="{{ $kelasItem->id }}">{{ $kelasItem->nama_kelas }}</option>
                                 @endforeach
@@ -308,10 +321,13 @@
                             <div class="form-group">
                                 <label for="check-availability">Cek Ketersediaan Ruangan:</label>
                                 <div class="d-flex align-items-center">
-                                    <button type="button" class="btn btn-info" id="check-availability">Cek Ruangan</button>
-                                    <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
+                                    <button type="button" class="btn btn-info" id="check-availability">Cek
+                                        Ruangan</button>
+                                    <span id="availability-status" class="ml-3 text-success"
+                                        style="display: none;">Ruangan
                                         tersedia.</span>
-                                    <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
+                                    <span id="no-availability-status" class="ml-3 text-danger"
+                                        style="display: none;">Tidak
                                         ada ruangan kosong.</span>
                                 </div>
                             </div>
@@ -319,9 +335,11 @@
                                 <label for="id_ruangan">Ruangan:</label>
                                 <select name="id_ruangan" id="id_ruangan" class="form-control" required>
                                     <option value="">-- Pilih Ruangan --</option>
+                                    <option value="-"> - </option>
                                     @foreach ($ruangan as $ruang)
                                         <option value="{{ $ruang->id }}"
-                                            {{ $d->id_ruangan == $ruang->id ? 'selected' : '' }}>{{ $ruang->nama_ruangan }}</option>
+                                            {{ $d->id_ruangan == $ruang->id ? 'selected' : '' }}>
+                                            {{ $ruang->nama_ruangan }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -343,8 +361,8 @@
                                     <option value="">-- Pilih Prodi --</option>
                                     @foreach ($prodi as $prodis)
                                         <option value="{{ $prodis->id }}"
-                                            {{ $d->id_prodi == $prodis->id ? 'selected' : ''}}>
-                                            {{ $prodis->nama_prodi}}
+                                            {{ $d->id_prodi == $prodis->id ? 'selected' : '' }}>
+                                            {{ $prodis->nama_prodi }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -375,7 +393,7 @@
                                 Kelas:
                                 <input type="text" name="kelas" class="form-control" value="{{ $d->kelas }}">
                                 {{-- <select name="id_kelas" class="form-control"> --}}
-                                    {{-- <option value="">-- Pilih Kelas --</option>
+                                {{-- <option value="">-- Pilih Kelas --</option>
                                     @foreach ($kelas as $kelasItem)
                                         <option value="{{ $kelasItem->id }}">{{ $kelasItem->nama_kelas }}</option>
                                     @endforeach
@@ -447,51 +465,70 @@
 
 
     <script>
-        document.getElementById('check-availability').addEventListener('click', function() {
-            const hari = document.querySelector('select[name="hari"]').value;
-            const jamMulai = document.querySelector('input[name="jam_mulai"]').value;
-            const jamSelesai = document.querySelector('input[name="jam_selesai"]').value;
+        document.addEventListener('DOMContentLoaded', function() {
+        const hariSelect = document.querySelector('select[name="hari"]');
+        const jamMulaiInput = document.querySelector('input[name="jam_mulai"]');
+        const jamSelesaiInput = document.querySelector('input[name="jam_selesai"]');
+        const roomSelect = document.getElementById('id_ruangan');
+        const availabilityStatus = document.getElementById('availability-status');
+        const noAvailabilityStatus = document.getElementById('no-availability-status');
 
+        // Fungsi untuk mengecek ketersediaan ruangan
+        const checkAvailability = () => {
+            const hari = hariSelect.value;
+            const jamMulai = jamMulaiInput.value;
+            const jamSelesai = jamSelesaiInput.value;
+
+            // Validasi input
             if (!hari || !jamMulai || !jamSelesai) {
-                alert('Harap isi hari, jam mulai, dan jam selesai terlebih dahulu.');
+                availabilityStatus.style.display = 'none';
+                noAvailabilityStatus.style.display = 'none';
+                roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
                 return;
             }
 
+            // Fetch ketersediaan ruangan
             fetch(`/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`)
                 .then(response => response.json())
                 .then(data => {
-                    const availabilityStatus = document.getElementById('availability-status');
-                    const noAvailabilityStatus = document.getElementById('no-availability-status');
-                    const roomSelect = document.getElementById('id_ruangan');
-
+                    // Reset status
                     availabilityStatus.style.display = 'none';
                     noAvailabilityStatus.style.display = 'none';
 
                     if (data.length > 0) {
-                // Tampilkan ruangan yang tersedia di dropdown
-                roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
-                let roomNames = [];
-                data.forEach(room => {
-                    const option = document.createElement('option');
-                    option.value = room.id;
-                    option.textContent = room.nama_ruangan;
-                    roomSelect.appendChild(option);
-                    roomNames.push(room.nama_ruangan);
-                });
+                        // Tampilkan ruangan yang tersedia di dropdown
+                        roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
+                        let roomNames = [];
+                        data.forEach(room => {
+                            const option = document.createElement('option');
+                            option.value = room.id;
+                            option.textContent = room.nama_ruangan;
+                            roomSelect.appendChild(option);
+                            roomNames.push(room.nama_ruangan);
+                        });
 
-                // Tampilkan pesan ruangan tersedia
-                availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
-                availabilityStatus.style.display = 'block';
-            } else {
-                roomSelect.innerHTML = '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
-                noAvailabilityStatus.style.display = 'block';
-            }
+                        // Tampilkan pesan ruangan tersedia
+                        availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
+                        availabilityStatus.style.display = 'block';
+                    } else {
+                        // Jika tidak ada ruangan yang tersedia
+                        roomSelect.innerHTML =
+                            '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
+                        noAvailabilityStatus.style.display = 'block';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Terjadi kesalahan saat memeriksa ketersediaan ruangan.');
                 });
+        };
+
+        // Event listener untuk input
+        hariSelect.addEventListener('change', checkAvailability);
+        jamMulaiInput.addEventListener('input', checkAvailability);
+        jamSelesaiInput.addEventListener('input', checkAvailability);
         });
+
 
 
 
