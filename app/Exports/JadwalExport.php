@@ -10,11 +10,13 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 class JadwalExport implements FromCollection, WithHeadings
 {
     protected $smt;
+    protected $prodi;
 
-    // Constructor untuk menerima filter smt
-    public function __construct($smt = null)
+    // Constructor untuk menerima filter smt dan prodi
+    public function __construct($smt = null, $prodi = null)
     {
         $this->smt = $smt;
+        $this->prodi = $prodi;
     }
 
     /**
@@ -22,7 +24,7 @@ class JadwalExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        $query = Mjadwal::with(['matkul', 'dosen', 'ruangan']);
+        $query = Mjadwal::with(['matkul', 'dosen', 'ruangan', 'prodi']);
 
         // Filter berdasarkan smt dari relasi matkul
         if (!empty($this->smt)) {
@@ -31,10 +33,22 @@ class JadwalExport implements FromCollection, WithHeadings
             });
         }
 
+        // Filter berdasarkan prodi dari relasi prodi
+        if (!empty($this->prodi)) {
+            $query->where('id_prodi', $this->prodi);
+        }
+
+        // Filter berdasarkan prodi
+        // if (!empty($this->prodi)) {
+        //     $query->whereHas('prodi', function ($q) {
+        //         $q->where('id_prodi', $this->prodi);
+        //     });
+        // }
+
         $jadwal = $query->get();
 
         // Debug jumlah data yang difilter
-        Log::info("Jumlah data untuk smt '{$this->smt}': " . $jadwal->count());
+        Log::info("Jumlah data untuk smt '{$this->smt}' dan prodi '{$this->prodi}': " . $jadwal->count());
 
         return $jadwal->map(function ($jadwal) {
             return [
@@ -48,6 +62,7 @@ class JadwalExport implements FromCollection, WithHeadings
                 'nama_dosen' => $jadwal->dosen->nama_dosen ?? '-',
                 'kelas' => $jadwal->kelas ?? '-',
                 'nama_ruangan' => $jadwal->ruangan->nama_ruangan ?? '-',
+                'prodi' => $jadwal->prodi->nama_prodi ?? '-', // Ambil nama prodi dari relasi prodi
                 'mode_pembelajaran' => ucfirst($jadwal->mode_pembelajaran),
             ];
         });
@@ -69,6 +84,7 @@ class JadwalExport implements FromCollection, WithHeadings
             'Dosen Pengampu',
             'Kelas',
             'Ruangan',
+            'Prodi', // Heading untuk kolom prodi
             'Mode Pembelajaran',
         ];
     }

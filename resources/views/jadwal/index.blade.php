@@ -25,9 +25,10 @@
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambah" style="margin-bottom: 20px">
         Tambah Data
     </button>
-    <a href="{{ route('jadwal.export', ['smt' => request('smt')]) }}" class="btn btn-success mb-3">
+    <a href="{{ route('jadwal.export', ['smt' => request('smt'), 'prodi' => request('prodi')]) }}" class="btn btn-success mb-3">
         Export to Excel
     </a>
+    
 
 
 
@@ -53,31 +54,31 @@
         </div>
     </div>
 
-<div class="mb-3">
-    <form method="GET" action="{{ route('jadwal.index') }}" >
-        <!-- Filter Semester -->
-        <label for="smt">Filter Semester:</label>
-        <select name="smt" id="smt" onchange="this.form.submit()">
-            <option value="">Semua Semester</option>
-            @foreach ($semesters as $smt)
-                <option value="{{ $smt }}" {{ request('smt') == $smt ? 'selected' : '' }}>
-                    {{ $smt }}
-                </option>
-            @endforeach
-        </select>
-    
-        <!-- Filter Prodi -->
-        <label for="prodi">Filter Prodi:</label>
-        <select name="prodi" id="prodi" onchange="this.form.submit()">
-            <option value="">Semua Prodi</option>
-            @foreach ($prodiList as $id => $nama_prodi)
-                <option value="{{ $id }}" {{ request('prodi') == $id ? 'selected' : '' }}>
-                    {{ $nama_prodi }}
-                </option>
-            @endforeach
-        </select>
-    </form>
-</div>
+    <div class="mb-3">
+        <form method="GET" action="{{ route('jadwal.index') }}">
+            <!-- Filter Semester -->
+            <label for="smt">Filter Semester:</label>
+            <select name="smt" id="smt" onchange="this.form.submit()">
+                <option value="">Semua Semester</option>
+                @foreach ($semesters as $smt)
+                    <option value="{{ $smt }}" {{ request('smt') == $smt ? 'selected' : '' }}>
+                        {{ $smt }}
+                    </option>
+                @endforeach
+            </select>
+
+            <!-- Filter Prodi -->
+            <label for="prodi">Filter Prodi:</label>
+            <select name="prodi" id="prodi" onchange="this.form.submit()">
+                <option value="">Semua Prodi</option>
+                @foreach ($prodiList as $id => $nama_prodi)
+                    <option value="{{ $id }}" {{ request('prodi') == $id ? 'selected' : '' }}>
+                        {{ $nama_prodi }}
+                    </option>
+                @endforeach
+            </select>
+        </form>
+    </div>
 
     <table id="table" class="table table-bordered table-hover display">
         <thead>
@@ -177,25 +178,27 @@
                                 <option value="Minggu">Minggu</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="jam_mulai">Jam Mulai:</label>
                             <input type="time" name="jam_mulai" id="jam_mulai" class="form-control" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="jam_selesai">Jam Selesai:</label>
                             <input type="time" name="jam_selesai" id="jam_selesai" class="form-control" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="availability">Ketersediaan Ruangan:</label>
                             <div class="d-flex align-items-center">
-                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
-                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
+                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
+                                    tersedia.</span>
+                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
+                                    ada ruangan kosong.</span>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="id_ruangan">Ruangan:</label>
                             <select name="id_ruangan" id="id_ruangan" class="form-control" required>
@@ -203,7 +206,7 @@
                                 <!-- Options akan diisi otomatis melalui JavaScript -->
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             Mata Kuliah:
                             <select name="kode_matkul" class="form-control">
@@ -319,15 +322,11 @@
                                     value="{{ $d->jam_selesai }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="check-availability">Cek Ketersediaan Ruangan:</label>
+                                <label for="availability">Ketersediaan Ruangan:</label>
                                 <div class="d-flex align-items-center">
-                                    <button type="button" class="btn btn-info" id="check-availability">Cek
-                                        Ruangan</button>
-                                    <span id="availability-status" class="ml-3 text-success"
-                                        style="display: none;">Ruangan
+                                    <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
                                         tersedia.</span>
-                                    <span id="no-availability-status" class="ml-3 text-danger"
-                                        style="display: none;">Tidak
+                                    <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
                                         ada ruangan kosong.</span>
                                 </div>
                             </div>
@@ -466,67 +465,67 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        const hariSelect = document.querySelector('select[name="hari"]');
-        const jamMulaiInput = document.querySelector('input[name="jam_mulai"]');
-        const jamSelesaiInput = document.querySelector('input[name="jam_selesai"]');
-        const roomSelect = document.getElementById('id_ruangan');
-        const availabilityStatus = document.getElementById('availability-status');
-        const noAvailabilityStatus = document.getElementById('no-availability-status');
+            const hariSelect = document.querySelector('select[name="hari"]');
+            const jamMulaiInput = document.querySelector('input[name="jam_mulai"]');
+            const jamSelesaiInput = document.querySelector('input[name="jam_selesai"]');
+            const roomSelect = document.getElementById('id_ruangan');
+            const availabilityStatus = document.getElementById('availability-status');
+            const noAvailabilityStatus = document.getElementById('no-availability-status');
 
-        // Fungsi untuk mengecek ketersediaan ruangan
-        const checkAvailability = () => {
-            const hari = hariSelect.value;
-            const jamMulai = jamMulaiInput.value;
-            const jamSelesai = jamSelesaiInput.value;
+            // Fungsi untuk mengecek ketersediaan ruangan
+            const checkAvailability = () => {
+                const hari = hariSelect.value;
+                const jamMulai = jamMulaiInput.value;
+                const jamSelesai = jamSelesaiInput.value;
 
-            // Validasi input
-            if (!hari || !jamMulai || !jamSelesai) {
-                availabilityStatus.style.display = 'none';
-                noAvailabilityStatus.style.display = 'none';
-                roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
-                return;
-            }
-
-            // Fetch ketersediaan ruangan
-            fetch(`/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Reset status
+                // Validasi input
+                if (!hari || !jamMulai || !jamSelesai) {
                     availabilityStatus.style.display = 'none';
                     noAvailabilityStatus.style.display = 'none';
+                    roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
+                    return;
+                }
 
-                    if (data.length > 0) {
-                        // Tampilkan ruangan yang tersedia di dropdown
-                        roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
-                        let roomNames = [];
-                        data.forEach(room => {
-                            const option = document.createElement('option');
-                            option.value = room.id;
-                            option.textContent = room.nama_ruangan;
-                            roomSelect.appendChild(option);
-                            roomNames.push(room.nama_ruangan);
-                        });
+                // Fetch ketersediaan ruangan
+                fetch(`/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Reset status
+                        availabilityStatus.style.display = 'none';
+                        noAvailabilityStatus.style.display = 'none';
 
-                        // Tampilkan pesan ruangan tersedia
-                        availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
-                        availabilityStatus.style.display = 'block';
-                    } else {
-                        // Jika tidak ada ruangan yang tersedia
-                        roomSelect.innerHTML =
-                            '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
-                        noAvailabilityStatus.style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memeriksa ketersediaan ruangan.');
-                });
-        };
+                        if (data.length > 0) {
+                            // Tampilkan ruangan yang tersedia di dropdown
+                            roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
+                            let roomNames = [];
+                            data.forEach(room => {
+                                const option = document.createElement('option');
+                                option.value = room.id;
+                                option.textContent = room.nama_ruangan;
+                                roomSelect.appendChild(option);
+                                roomNames.push(room.nama_ruangan);
+                            });
 
-        // Event listener untuk input
-        hariSelect.addEventListener('change', checkAvailability);
-        jamMulaiInput.addEventListener('input', checkAvailability);
-        jamSelesaiInput.addEventListener('input', checkAvailability);
+                            // Tampilkan pesan ruangan tersedia
+                            availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
+                            availabilityStatus.style.display = 'block';
+                        } else {
+                            // Jika tidak ada ruangan yang tersedia
+                            roomSelect.innerHTML =
+                                '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
+                            noAvailabilityStatus.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat memeriksa ketersediaan ruangan.');
+                    });
+            };
+
+            // Event listener untuk input
+            hariSelect.addEventListener('change', checkAvailability);
+            jamMulaiInput.addEventListener('input', checkAvailability);
+            jamSelesaiInput.addEventListener('input', checkAvailability);
         });
 
 
