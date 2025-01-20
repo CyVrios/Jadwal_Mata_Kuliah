@@ -25,10 +25,11 @@
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambah" style="margin-bottom: 20px">
         Tambah Data
     </button>
-    <a href="{{ route('jadwal.export', ['smt' => request('smt'), 'prodi' => request('prodi')]) }}" class="btn btn-success mb-3">
+    <a href="{{ route('jadwal.export', ['smt' => request('smt'), 'prodi' => request('prodi')]) }}"
+        class="btn btn-success mb-3">
         Export to Excel
     </a>
-    
+
 
 
 
@@ -192,20 +193,16 @@
                         <div class="form-group">
                             <label for="availability">Ketersediaan Ruangan:</label>
                             <div class="d-flex align-items-center">
-                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
-                                    tersedia.</span>
-                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
-                                    ada ruangan kosong.</span>
+                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
+                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="id_ruangan">Ruangan:</label>
-                            <select name="id_ruangan" id="id_ruangan" class="form-control" required>
+                            <select name="id_ruangan" id="id_ruangan-add" class="form-control" required>
                                 <option value="">-- Pilih Ruangan --</option>
-                                <!-- Options akan diisi otomatis melalui JavaScript -->
                             </select>
-                        </div>
+                        </div>  
 
                         <div class="form-group">
                             Mata Kuliah:
@@ -321,27 +318,23 @@
                                 <input type="time" name="jam_selesai" class="form-control"
                                     value="{{ $d->jam_selesai }}" required>
                             </div>
+
+                            <!-- Form Edit (Manual) -->
                             <div class="form-group">
+                                <button type="button" id="check-room-btn-edit" class="btn btn-secondary mt-2">Cek Ketersediaan Ruangan</button>
                                 <label for="availability">Ketersediaan Ruangan:</label>
                                 <div class="d-flex align-items-center">
-                                    <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan
-                                        tersedia.</span>
-                                    <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak
-                                        ada ruangan kosong.</span>
+                                    <span id="availability-status-edit" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
+                                    <span id="no-availability-status-edit" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="id_ruangan">Ruangan:</label>
-                                <select name="id_ruangan" id="id_ruangan" class="form-control" required>
+                                <select name="id_ruangan" id="id_ruangan-edit" class="form-control" required>
                                     <option value="">-- Pilih Ruangan --</option>
-                                    <option value="-"> - </option>
-                                    @foreach ($ruangan as $ruang)
-                                        <option value="{{ $ruang->id }}"
-                                            {{ $d->id_ruangan == $ruang->id ? 'selected' : '' }}>
-                                            {{ $ruang->nama_ruangan }}</option>
-                                    @endforeach
                                 </select>
                             </div>
+
                             <div class="form-group">
                                 Mata Kuliah:
                                 <select name="kode_matkul" class="form-control">
@@ -366,11 +359,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            {{-- <div class="form-group">
-                                Semester:
-                                <input type="text" name="smt" class="form-control" value="{{ $d->smt }}"
-                                    required>
-                            </div> --}}
+
                             <div class="form-group">
                                 SKS:
                                 <input type="text" name="sks" class="form-control" value="{{ $d->sks }}"
@@ -391,25 +380,9 @@
                             <div class="form-group">
                                 Kelas:
                                 <input type="text" name="kelas" class="form-control" value="{{ $d->kelas }}">
-                                {{-- <select name="id_kelas" class="form-control"> --}}
-                                {{-- <option value="">-- Pilih Kelas --</option>
-                                    @foreach ($kelas as $kelasItem)
-                                        <option value="{{ $kelasItem->id }}">{{ $kelasItem->nama_kelas }}</option>
-                                    @endforeach
-                                </select> --}}
+
                             </div>
-                            <div class="form-group">
-                                Ruangan:
-                                <select name="id_ruangan" class="form-control">
-                                    <option value="">-- Pilih Ruangan --</option>
-                                    @foreach ($ruangan as $ruang)
-                                        <option value="{{ $ruang->id }}"
-                                            {{ $d->id_ruangan == $ruang->id ? 'selected' : '' }}>
-                                            {{ $ruang->nama_ruangan }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+
                             <div class="form-group">
                                 Mode Pembelajaran:
                                 <select name="mode_pembelajaran" class="form-control" required>
@@ -465,15 +438,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const hariSelect = document.querySelector('select[name="hari"]');
-            const jamMulaiInput = document.querySelector('input[name="jam_mulai"]');
-            const jamSelesaiInput = document.querySelector('input[name="jam_selesai"]');
-            const roomSelect = document.getElementById('id_ruangan');
-            const availabilityStatus = document.getElementById('availability-status');
-            const noAvailabilityStatus = document.getElementById('no-availability-status');
+            // Form Tambah (otomatis) selectors
+            const hariSelectAdd = document.querySelector('select[name="hari"]');
+            const jamMulaiInputAdd = document.querySelector('input[name="jam_mulai"]');
+            const jamSelesaiInputAdd = document.querySelector('input[name="jam_selesai"]');
+            const roomSelectAdd = document.getElementById('id_ruangan-add');
+            const availabilityStatusAdd = document.getElementById('availability-status');
+            const noAvailabilityStatusAdd = document.getElementById('no-availability-status');
 
-            // Fungsi untuk mengecek ketersediaan ruangan
-            const checkAvailability = () => {
+            // Form Edit (manual) selectors
+            const modal = document.querySelector('.modal'); // Pastikan modal sudah dimuat
+            const hariSelectEdit = modal.querySelector('select[name="hari"]');
+            const jamMulaiInputEdit = modal.querySelector('input[name="jam_mulai"]');
+            const jamSelesaiInputEdit = modal.querySelector('input[name="jam_selesai"]');
+            const roomSelectEdit = modal.querySelector('#id_ruangan-edit');
+            const availabilityStatusEdit = modal.querySelector('#availability-status-edit');
+            const noAvailabilityStatusEdit = modal.querySelector('#no-availability-status-edit');
+            const checkRoomBtnEdit = modal.querySelector('#check-room-btn-edit');
+
+            // Fungsi untuk mengecek ketersediaan ruangan (untuk kedua form)
+            const checkAvailability = (roomSelect, availabilityStatus, noAvailabilityStatus, hariSelect,
+                jamMulaiInput, jamSelesaiInput) => {
                 const hari = hariSelect.value;
                 const jamMulai = jamMulaiInput.value;
                 const jamSelesai = jamSelesaiInput.value;
@@ -490,12 +475,10 @@
                 fetch(`/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Reset status
                         availabilityStatus.style.display = 'none';
                         noAvailabilityStatus.style.display = 'none';
 
                         if (data.length > 0) {
-                            // Tampilkan ruangan yang tersedia di dropdown
                             roomSelect.innerHTML = '<option value="">-- Pilih Ruangan --</option>';
                             let roomNames = [];
                             data.forEach(room => {
@@ -506,11 +489,11 @@
                                 roomNames.push(room.nama_ruangan);
                             });
 
-                            // Tampilkan pesan ruangan tersedia
+                            // Tampilkan status ruang tersedia
                             availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
                             availabilityStatus.style.display = 'block';
                         } else {
-                            // Jika tidak ada ruangan yang tersedia
+                            // Tidak ada ruang tersedia
                             roomSelect.innerHTML =
                                 '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
                             noAvailabilityStatus.style.display = 'block';
@@ -522,10 +505,19 @@
                     });
             };
 
-            // Event listener untuk input
-            hariSelect.addEventListener('change', checkAvailability);
-            jamMulaiInput.addEventListener('input', checkAvailability);
-            jamSelesaiInput.addEventListener('input', checkAvailability);
+            // Event listener untuk form tambah
+            hariSelectAdd.addEventListener('change', () => checkAvailability(roomSelectAdd, availabilityStatusAdd,
+                noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd, jamSelesaiInputAdd));
+            jamMulaiInputAdd.addEventListener('input', () => checkAvailability(roomSelectAdd, availabilityStatusAdd,
+                noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd, jamSelesaiInputAdd));
+            jamSelesaiInputAdd.addEventListener('input', () => checkAvailability(roomSelectAdd,
+                availabilityStatusAdd, noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd,
+                jamSelesaiInputAdd));
+
+            // Event listener untuk form edit (manual) dengan tombol
+            checkRoomBtnEdit.addEventListener('click', () => checkAvailability(roomSelectEdit,
+                availabilityStatusEdit, noAvailabilityStatusEdit, hariSelectEdit, jamMulaiInputEdit,
+                jamSelesaiInputEdit));
         });
 
 

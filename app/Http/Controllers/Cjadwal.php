@@ -191,14 +191,17 @@ class Cjadwal extends Controller
             'hari' => 'required|string',
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
-            'id_dosen' => 'required|exists:dosen,id',
             'kelas' => 'required',
+            'id_dosen' => 'required|exists:dosen,id',
             'id_ruangan' => 'nullable|exists:ruangan,id',
             'id_prodi' => 'required|exists:prodi,id',
-            'kode_matkul' => 'required|exists:matkul,id',
+            'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
             'sks' => 'required',
             'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
+            
         ]);
+
+        Log::info($request->all());
 
 
         // Update data
