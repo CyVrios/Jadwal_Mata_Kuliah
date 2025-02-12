@@ -154,7 +154,7 @@
                             @method('PUT')
                             <div class="form-group">
                                 Id Ruangan:
-                                <input type="text" name="id_ruanga" class="form-control" value="{{ $d->id_ruangan }}"
+                                <input type="text" name="id_ruangan" class="form-control" value="{{ $d->id_ruangan }}"
                                     required>
                             </div>
                             <div class="form-group">

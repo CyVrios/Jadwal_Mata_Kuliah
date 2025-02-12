@@ -30,7 +30,7 @@ class Cruangan extends Controller
     public function store(Request $request)
     {
        $validated =  $request->validate([
-            'id_ruangan' => 'required|min:1|max:10',
+            // 'id_ruangan' => 'required|min:1|max:10',
             'nama_ruangan' => 'required|min:1|max:10',
         ]);
         $ruangan = Mruangan::create($validated);
@@ -40,7 +40,7 @@ class Cruangan extends Controller
             'icon' => 'success'
         ];
         $last_data = [
-            'id_ruangan' => $ruangan->id_ruangan,
+            // 'id_ruangan' => $ruangan->id_ruangan,
             'nama_ruangan' => $ruangan->nama_ruangan,
         ];
 
@@ -70,12 +70,12 @@ class Cruangan extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'id_ruangan' => 'required|min:1|max:10',
+            // 'id_ruangan' => 'required|min:1|max:10',
             'nama_ruangan' => 'required|min:1|max:10',
         ]);
         $ruangan = Mruangan::findOrFail($id);
         $ruangan->update([
-            'id_ruangan' => $request->id_ruangan,
+            // 'id_ruangan' => $request->id_ruangan,
             'nama_ruangan' => $request->nama_ruangan,
         ]);
         return redirect()->route('ruangan.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil diubah', 'icon' => 'success']);

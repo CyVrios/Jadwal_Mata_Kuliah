@@ -141,18 +141,133 @@
     </table>
 
 
-    <!-- Modal Tambah -->
-    <div class="modal fade" id="tambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+ <!-- Modal Tambah -->
+<div class="modal fade" id="tambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Data Mata Kuliah</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('jadwal.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="debug" value="1">
+                    <div class="form-group">
+                        <label for="hari">Hari:</label>
+                        <select name="hari" id="hari" class="form-control" required>
+                            <option value="">-- Pilih Hari --</option>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jam_mulai">Jam Mulai:</label>
+                        <input type="time" name="jam_mulai" id="jam_mulai" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jam_selesai">Jam Selesai:</label>
+                        <input type="time" name="jam_selesai" id="jam_selesai" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="availability">Ketersediaan Ruangan:</label>
+                        <div class="d-flex align-items-center">
+                            <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
+                            <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_ruangan">Ruangan:</label>
+                        <select name="id_ruangan" id="id_ruangan-add" class="form-control" required>
+                            <option value="">-- Pilih Ruangan --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        Mata Kuliah:
+                        <select name="kode_matkul" class="form-control">
+                            <option value="">-- Pilih Mata Kuliah --</option>
+                            @foreach ($matkul as $matkuls)
+                                <option value="{{ $matkuls->id }}">{{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }} </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_prodi">Prodi:</label>
+                        <select name="id_prodi" id="id_prodi" class="form-control" required>
+                            <option value="">-- Pilih Prodi --</option>
+                            @foreach ($prodi as $d)
+                                <option value="{{ $d->id }}">{{ $d->nama_prodi }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        SKS:
+                        <input type="text" name="sks" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        Dosen:
+                        <select name="id_dosen" class="form-control">
+                            <option value="">-- Pilih Dosen --</option>
+                            @foreach ($dosen as $dosens)
+                                <option value="{{ $dosens->id }}">{{ $dosens->nama_dosen }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        Kelas:
+                        <input type="text" name="kelas" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        Mode Pembelajaran:
+                        <select name="mode_pembelajaran" class="form-control" required>
+                            <option value="">-- Pilih Mode --</option>
+                            <option value="luring">Luring</option>
+                            <option value="daring">Daring</option>
+                            <option value="luring/daring">Luring/Daring</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit -->
+@foreach ($jadwal as $d)
+    <div class="modal fade" id="editModal-{{ $d->id }}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Tambah Data Mata Kuliah</h5>
+                    <h5 class="modal-title">Edit Data Mata Kuliah</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -163,55 +278,59 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('jadwal.store') }}" method="POST" enctype="multipart/form-data">
+                    <!-- Form Edit -->
+                    <form action="{{ route('jadwal.update', $d->id) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
-                        <input type="hidden" name="debug" value="1">
+                        @method('PUT')
                         <div class="form-group">
-                            <label for="hari">Hari:</label>
-                            <select name="hari" id="hari" class="form-control" required>
+                            Hari:
+                            <select name="hari" class="form-control" required>
                                 <option value="">-- Pilih Hari --</option>
-                                <option value="Senin">Senin</option>
-                                <option value="Selasa">Selasa</option>
-                                <option value="Rabu">Rabu</option>
-                                <option value="Kamis">Kamis</option>
-                                <option value="Jumat">Jumat</option>
-                                <option value="Sabtu">Sabtu</option>
-                                <option value="Minggu">Minggu</option>
+                                <option value="Senin" {{ $d->hari == 'Senin' ? 'selected' : '' }}>Senin</option>
+                                <option value="Selasa" {{ $d->hari == 'Selasa' ? 'selected' : '' }}>Selasa</option>
+                                <option value="Rabu" {{ $d->hari == 'Rabu' ? 'selected' : '' }}>Rabu</option>
+                                <option value="Kamis" {{ $d->hari == 'Kamis' ? 'selected' : '' }}>Kamis</option>
+                                <option value="Jumat" {{ $d->hari == 'Jumat' ? 'selected' : '' }}>Jumat</option>
+                                <option value="Sabtu" {{ $d->hari == 'Sabtu' ? 'selected' : '' }}>Sabtu</option>
                             </select>
                         </div>
-
                         <div class="form-group">
-                            <label for="jam_mulai">Jam Mulai:</label>
-                            <input type="time" name="jam_mulai" id="jam_mulai" class="form-control" required>
+                            Jam Mulai:
+                            <input type="time" name="jam_mulai" class="form-control" value="{{ $d->jam_mulai }}"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            Jam Selesai:
+                            <input type="time" name="jam_selesai" class="form-control"
+                                value="{{ $d->jam_selesai }}" required>
                         </div>
 
+                        <!-- Form Edit (Manual) -->
                         <div class="form-group">
-                            <label for="jam_selesai">Jam Selesai:</label>
-                            <input type="time" name="jam_selesai" id="jam_selesai" class="form-control" required>
-                        </div>
-
-                        <div class="form-group">
+                            <button type="button" id="check-room-btn-edit" class="btn btn-secondary mt-2">Cek Ketersediaan Ruangan</button>
                             <label for="availability">Ketersediaan Ruangan:</label>
                             <div class="d-flex align-items-center">
-                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
-                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
+                                <span id="availability-status-edit" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
+                                <span id="no-availability-status-edit" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="id_ruangan">Ruangan:</label>
-                            <select name="id_ruangan" id="id_ruangan-add" class="form-control" required>
+                            <select name="id_ruangan" id="id_ruangan-edit" class="form-control" required>
                                 <option value="">-- Pilih Ruangan --</option>
                             </select>
-                        </div>  
+                        </div>
 
                         <div class="form-group">
                             Mata Kuliah:
                             <select name="kode_matkul" class="form-control">
                                 <option value="">-- Pilih Mata Kuliah --</option>
                                 @foreach ($matkul as $matkuls)
-                                    <option value="{{ $matkuls->id }}">{{ $matkuls->kode_matkul }} -
-                                        {{ $matkuls->nama_matkul }} </option>
-                                    {{-- - {{ $matkuls->prodi->nama_prodi }} --}}
+                                    <option value="{{ $matkuls->id }}"
+                                        {{ $d->kode_matkul == $matkuls->id ? 'selected' : '' }}>
+                                        {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -219,191 +338,61 @@
                             <label for="id_prodi">Prodi:</label>
                             <select name="id_prodi" id="id_prodi" class="form-control" required>
                                 <option value="">-- Pilih Prodi --</option>
-                                @foreach ($prodi as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama_prodi }}</option>
+                                @foreach ($prodi as $prodis)
+                                    <option value="{{ $prodis->id }}"
+                                        {{ $d->id_prodi == $prodis->id ? 'selected' : '' }}>
+                                        {{ $prodis->nama_prodi }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        {{-- <div class="form-group">
-                            Semester:
-                            <input type="text" name="smt" class="form-control" required>
-                        </div> --}}
+
                         <div class="form-group">
                             SKS:
-                            <input type="text" name="sks" class="form-control" required>
+                            <input type="text" name="sks" class="form-control" value="{{ $d->sks }}"
+                                required>
                         </div>
                         <div class="form-group">
                             Dosen:
                             <select name="id_dosen" class="form-control">
                                 <option value="">-- Pilih Dosen --</option>
                                 @foreach ($dosen as $dosens)
-                                    <option value="{{ $dosens->id }}">{{ $dosens->nama_dosen }}</option>
+                                    <option value="{{ $dosens->id }}"
+                                        {{ $d->id_dosen == $dosens->id ? 'selected' : '' }}>
+                                        {{ $dosens->nama_dosen }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
                             Kelas:
-                            <input type="text" name="kelas" class="form-control">
-                            {{-- <select name="id_kelas" class="form-control"> --}}
-                            {{-- <option value="">-- Pilih Kelas --</option>
-                                @foreach ($kelas as $kelasItem)
-                                    <option value="{{ $kelasItem->id }}">{{ $kelasItem->nama_kelas }}</option>
-                                @endforeach
-                            </select> --}}
+                            <input type="text" name="kelas" class="form-control" value="{{ $d->kelas }}">
+
                         </div>
+
                         <div class="form-group">
                             Mode Pembelajaran:
                             <select name="mode_pembelajaran" class="form-control" required>
                                 <option value="">-- Pilih Mode --</option>
-                                <option value="luring">Luring</option>
-                                <option value="daring">Daring</option>
-                                <option value="luring/daring">Luring/Daring</option>
+                                <option value="luring" {{ $d->mode_pembelajaran == 'luring' ? 'selected' : '' }}>
+                                    Luring</option>
+                                <option value="daring" {{ $d->mode_pembelajaran == 'daring' ? 'selected' : '' }}>
+                                    Daring</option>
+                                <option value="luring/daring"
+                                    {{ $d->mode_pembelajaran == 'luring/daring' ? 'selected' : '' }}>Luring/Daring
+                                </option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
+@endforeach
 
-    @foreach ($jadwal as $d)
-        <!-- Modal Edit -->
-        <div class="modal fade" id="editModal-{{ $d->id }}" tabindex="-1" aria-labelledby="editModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Edit Data Mata Kuliah</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
 
-                        <!-- Form Edit -->
-                        <form action="{{ route('jadwal.update', $d->id) }}" method="POST"
-                            enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-                            <div class="form-group">
-                                Hari:
-                                <select name="hari" class="form-control" required>
-                                    <option value="">-- Pilih Hari --</option>
-                                    <option value="Senin" {{ $d->hari == 'Senin' ? 'selected' : '' }}>Senin</option>
-                                    <option value="Selasa" {{ $d->hari == 'Selasa' ? 'selected' : '' }}>Selasa</option>
-                                    <option value="Rabu" {{ $d->hari == 'Rabu' ? 'selected' : '' }}>Rabu</option>
-                                    <option value="Kamis" {{ $d->hari == 'Kamis' ? 'selected' : '' }}>Kamis</option>
-                                    <option value="Jumat" {{ $d->hari == 'Jumat' ? 'selected' : '' }}>Jumat</option>
-                                    <option value="Sabtu" {{ $d->hari == 'Sabtu' ? 'selected' : '' }}>Sabtu</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                Jam Mulai:
-                                <input type="time" name="jam_mulai" class="form-control" value="{{ $d->jam_mulai }}"
-                                    required>
-                            </div>
-                            <div class="form-group">
-                                Jam Selesai:
-                                <input type="time" name="jam_selesai" class="form-control"
-                                    value="{{ $d->jam_selesai }}" required>
-                            </div>
 
-                            <!-- Form Edit (Manual) -->
-                            <div class="form-group">
-                                <button type="button" id="check-room-btn-edit" class="btn btn-secondary mt-2">Cek Ketersediaan Ruangan</button>
-                                <label for="availability">Ketersediaan Ruangan:</label>
-                                <div class="d-flex align-items-center">
-                                    <span id="availability-status-edit" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
-                                    <span id="no-availability-status-edit" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="id_ruangan">Ruangan:</label>
-                                <select name="id_ruangan" id="id_ruangan-edit" class="form-control" required>
-                                    <option value="">-- Pilih Ruangan --</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                Mata Kuliah:
-                                <select name="kode_matkul" class="form-control">
-                                    <option value="">-- Pilih Mata Kuliah --</option>
-                                    @foreach ($matkul as $matkuls)
-                                        <option value="{{ $matkuls->id }}"
-                                            {{ $d->kode_matkul == $matkuls->id ? 'selected' : '' }}>
-                                            {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="id_prodi">Prodi:</label>
-                                <select name="id_prodi" id="id_prodi" class="form-control" required>
-                                    <option value="">-- Pilih Prodi --</option>
-                                    @foreach ($prodi as $prodis)
-                                        <option value="{{ $prodis->id }}"
-                                            {{ $d->id_prodi == $prodis->id ? 'selected' : '' }}>
-                                            {{ $prodis->nama_prodi }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                SKS:
-                                <input type="text" name="sks" class="form-control" value="{{ $d->sks }}"
-                                    required>
-                            </div>
-                            <div class="form-group">
-                                Dosen:
-                                <select name="id_dosen" class="form-control">
-                                    <option value="">-- Pilih Dosen --</option>
-                                    @foreach ($dosen as $dosens)
-                                        <option value="{{ $dosens->id }}"
-                                            {{ $d->id_dosen == $dosens->id ? 'selected' : '' }}>
-                                            {{ $dosens->nama_dosen }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                Kelas:
-                                <input type="text" name="kelas" class="form-control" value="{{ $d->kelas }}">
-
-                            </div>
-
-                            <div class="form-group">
-                                Mode Pembelajaran:
-                                <select name="mode_pembelajaran" class="form-control" required>
-                                    <option value="">-- Pilih Mode --</option>
-                                    <option value="luring" {{ $d->mode_pembelajaran == 'luring' ? 'selected' : '' }}>
-                                        Luring</option>
-                                    <option value="daring" {{ $d->mode_pembelajaran == 'daring' ? 'selected' : '' }}>
-                                        Daring</option>
-                                    <option value="luring/daring"
-                                        {{ $d->mode_pembelajaran == 'luring/daring' ? 'selected' : '' }}>Luring/Daring
-                                    </option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
 
 
 
@@ -438,7 +427,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Form Tambah (otomatis) selectors
+            // Form Tambah selectors
             const hariSelectAdd = document.querySelector('select[name="hari"]');
             const jamMulaiInputAdd = document.querySelector('input[name="jam_mulai"]');
             const jamSelesaiInputAdd = document.querySelector('input[name="jam_selesai"]');
@@ -446,24 +435,13 @@
             const availabilityStatusAdd = document.getElementById('availability-status');
             const noAvailabilityStatusAdd = document.getElementById('no-availability-status');
 
-            // Form Edit (manual) selectors
-            const modal = document.querySelector('.modal'); // Pastikan modal sudah dimuat
-            const hariSelectEdit = modal.querySelector('select[name="hari"]');
-            const jamMulaiInputEdit = modal.querySelector('input[name="jam_mulai"]');
-            const jamSelesaiInputEdit = modal.querySelector('input[name="jam_selesai"]');
-            const roomSelectEdit = modal.querySelector('#id_ruangan-edit');
-            const availabilityStatusEdit = modal.querySelector('#availability-status-edit');
-            const noAvailabilityStatusEdit = modal.querySelector('#no-availability-status-edit');
-            const checkRoomBtnEdit = modal.querySelector('#check-room-btn-edit');
-
-            // Fungsi untuk mengecek ketersediaan ruangan (untuk kedua form)
+            // Fungsi untuk mengecek ketersediaan ruangan
             const checkAvailability = (roomSelect, availabilityStatus, noAvailabilityStatus, hariSelect,
                 jamMulaiInput, jamSelesaiInput) => {
                 const hari = hariSelect.value;
                 const jamMulai = jamMulaiInput.value;
                 const jamSelesai = jamSelesaiInput.value;
 
-                // Validasi input
                 if (!hari || !jamMulai || !jamSelesai) {
                     availabilityStatus.style.display = 'none';
                     noAvailabilityStatus.style.display = 'none';
@@ -471,7 +449,6 @@
                     return;
                 }
 
-                // Fetch ketersediaan ruangan
                 fetch(`/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`)
                     .then(response => response.json())
                     .then(data => {
@@ -488,12 +465,9 @@
                                 roomSelect.appendChild(option);
                                 roomNames.push(room.nama_ruangan);
                             });
-
-                            // Tampilkan status ruang tersedia
                             availabilityStatus.textContent = `Ruangan tersedia: ${roomNames.join(', ')}`;
                             availabilityStatus.style.display = 'block';
                         } else {
-                            // Tidak ada ruang tersedia
                             roomSelect.innerHTML =
                                 '<option value="">-- Tidak Ada Ruangan Kosong --</option>';
                             noAvailabilityStatus.style.display = 'block';
@@ -506,19 +480,58 @@
             };
 
             // Event listener untuk form tambah
-            hariSelectAdd.addEventListener('change', () => checkAvailability(roomSelectAdd, availabilityStatusAdd,
-                noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd, jamSelesaiInputAdd));
-            jamMulaiInputAdd.addEventListener('input', () => checkAvailability(roomSelectAdd, availabilityStatusAdd,
-                noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd, jamSelesaiInputAdd));
-            jamSelesaiInputAdd.addEventListener('input', () => checkAvailability(roomSelectAdd,
-                availabilityStatusAdd, noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd,
-                jamSelesaiInputAdd));
+            [hariSelectAdd, jamMulaiInputAdd, jamSelesaiInputAdd].forEach(element => {
+                element.addEventListener('input', () => checkAvailability(roomSelectAdd,
+                    availabilityStatusAdd, noAvailabilityStatusAdd, hariSelectAdd, jamMulaiInputAdd,
+                    jamSelesaiInputAdd));
+            });
 
-            // Event listener untuk form edit (manual) dengan tombol
-            checkRoomBtnEdit.addEventListener('click', () => checkAvailability(roomSelectEdit,
-                availabilityStatusEdit, noAvailabilityStatusEdit, hariSelectEdit, jamMulaiInputEdit,
-                jamSelesaiInputEdit));
+            // Event listener untuk modal edit (agar setiap modal bisa mendeteksi ID ruangan yang benar)
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.addEventListener('show.bs.modal', function() {
+                        const modalId = this.getAttribute('id').replace('editModal-', '');
+                        const hariSelect = document.getElementById(`hari-edit-${modalId}`);
+                        const jamMulaiInput = document.getElementById(
+                            `jam_mulai-edit-${modalId}`);
+                        const jamSelesaiInput = document.getElementById(
+                            `jam_selesai-edit-${modalId}`);
+                        const roomSelect = document.getElementById(
+                            `id_ruangan-edit-${modalId}`);
+                        const availabilityStatus = document.getElementById(
+                            `availability-status-edit-${modalId}`);
+                        const noAvailabilityStatus = document.getElementById(
+                            `no-availability-status-edit-${modalId}`);
+
+                        const checkAvailability = () => {
+                            const hari = hariSelect.value;
+                            const jamMulai = jamMulaiInput.value;
+                            const jamSelesai = jamSelesaiInput.value;
+
+                            fetch(
+                                    `/check-available-rooms?hari=${hari}&jam_mulai=${jamMulai}&jam_selesai=${jamSelesai}`
+                                    )
+                                .then(response => response.json())
+                                .then(data => {
+                                    roomSelect.innerHTML =
+                                        '<option value="">-- Pilih Ruangan --</option>';
+                                    data.length ? data.forEach(room => {
+                                            roomSelect.innerHTML +=
+                                                `<option value="${room.id}">${room.nama_ruangan}</option>`;
+                                        }) : noAvailabilityStatus.style.display =
+                                        'block';
+                                });
+                        };
+
+                        [hariSelect, jamMulaiInput, jamSelesaiInput].forEach(el => el
+                            .addEventListener('input', checkAvailability));
+
+                        checkAvailability();
+                    });
+                });
+            });
         });
+
 
 
 
