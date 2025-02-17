@@ -30,7 +30,6 @@
             <span aria-hidden="true">&times;</span>
         </button>
         <strong>Data Terakhir Ditambahkan:</strong>
-        <p class="m-0">ID Prodi: <span id="last-id-prodi"></span></p>
         <p class="m-0">Nama Prodi: <span id="last-nama-prodi"></span></p>
     </div>
 
@@ -41,9 +40,9 @@
                 <th class="tengah">
                     NO
                 </th>
-                <th class="tengah">
+                {{-- <th class="tengah">
                     Id Prodi
-                </th>
+                </th> --}}
                 <th class="tengah">
                     Nama Prodi
                 </th>
@@ -56,7 +55,7 @@
             @forelse ($prodi as $d)
                 <tr>
                     <td class="tengah">{{ $loop->iteration }}</td>
-                    <td class="tengah">{{ $d->id_prodi }}</td>
+                    {{-- <td class="tengah">{{ $d->id_prodi }}</td> --}}
                     <td class="tengah">{{ $d->nama_prodi }}</td>
                     <td class="tengah">
                         <!-- Tombol Edit -->
@@ -108,10 +107,10 @@
 
                     <form action="{{ route('prodi.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             Id Prodi:
                             <input type="text" name="id_prodi" id="" class="form-control" required>
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             Nama prodi:
                             <input type="text" name="nama_prodi" id="" class="form-control" required>
@@ -151,11 +150,11 @@
                         <form action="{{ route('prodi.update', $d->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 Id Prodi:
                                 <input type="text" name="id_prodi" class="form-control" value="{{ $d->id_prodi }}"
                                     required>
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 Nama Prodi:
                                 <input type="text" name="nama_prodi" class="form-control"
@@ -242,10 +241,8 @@
             if (lastData) {
                 // Tampilkan elemen HTML
                 const lastDataContainer = document.getElementById('last-data-container');
-                const lastIdProdi = document.getElementById('last-id-prodi');
                 const lastNamaProdi = document.getElementById('last-nama-prodi');
 
-                lastIdProdi.textContent = lastData.id_prodi;
                 lastNamaProdi.textContent = lastData.nama_prodi;
 
                 lastDataContainer.style.display = 'block';
@@ -256,7 +253,7 @@
         // Menyimpan Data Terakhir ke localStorage
         @if (session('status') && session()->has('last_data'))
             const lastData = {
-                id_prodi: "{{ session('last_data')['id_prodi'] }}",
+                
                 nama_prodi: "{{ session('last_data')['nama_prodi'] }}"
             };
             localStorage.setItem('lastAddedProdi', JSON.stringify(lastData));

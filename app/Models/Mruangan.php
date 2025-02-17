@@ -10,10 +10,10 @@ class Mruangan extends Model
     use HasFactory;
 
     protected $table = 'ruangan';
-    protected $fillable = ['id_ruangan', 'nama_ruangan'];
+    protected $fillable = ['nama_ruangan'];
 
     public function jadwal()
     {
-        return $this->hasMany(Mjadwal::class, 'id_ruangan');
+        return $this->hasMany(Mjadwal::class, 'ruangan_id');
     }
 }

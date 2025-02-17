@@ -30,7 +30,7 @@
             <span aria-hidden="true">&times;</span>
         </button>
         <strong>Data Terakhir Ditambahkan:</strong>
-        <p class="m-0">NIDN Dosen: <span id="last-id-dosen"></span></p>
+        <p class="m-0">NIDN Dosen: <span id="last-nidn-dosen"></span></p>
         <p class="m-0">Nama Dosen: <span id="last-nama-dosen"></span></p>
     </div>
 
@@ -56,7 +56,7 @@
             @forelse ($dosen as $d)
                 <tr>
                     <td class="tengah">{{ $loop->iteration }}</td>
-                    <td class="tengah">{{ $d->id_dosen }}</td>
+                    <td class="tengah">{{ $d->nidn_dosen }}</td>
                     <td class="tengah">{{ $d->nama_dosen }}</td>
                     <td class="tengah">
                         <!-- Tombol Edit -->
@@ -112,7 +112,7 @@
                         @csrf
                         <div class="form-group">
                             NIDN Dosen:
-                            <input type="text" name="id_dosen" id="" class="form-control" required>
+                            <input type="text" name="nidn_dosen" id="" class="form-control" required>
                         </div>
                         <div class="form-group">
                             Nama dosen:
@@ -155,7 +155,7 @@
                             @method('PUT')
                             <div class="form-group">
                                 NIDN Dosen:
-                                <input type="text" name="id_dosen" class="form-control" value="{{ $d->id_dosen }}"
+                                <input type="text" name="nidn_dosen" class="form-control" value="{{ $d->nidn_dosen }}"
                                     required>
                             </div>
                             <div class="form-group">
@@ -246,10 +246,10 @@
             if (lastData) {
                 // Tampilkan elemen HTML
                 const lastDataContainer = document.getElementById('last-data-container');
-                const lastIdDosen = document.getElementById('last-id-dosen');
+                const lastNidnDosen = document.getElementById('last-nidn-dosen');
                 const lastNamaDosen = document.getElementById('last-nama-dosen');
                 
-                lastIdDosen.textContent = lastData.id_dosen;
+                lastNidnDosen.textContent = lastData.nidn_dosen;
                 lastNamaDosen.textContent = lastData.nama_dosen;
                 
                 lastDataContainer.style.display = 'block';
@@ -260,7 +260,7 @@
             // Menyimpan Data Terakhir ke localStorage
         @if (session('status') && session()->has('last_data'))
             const lastData = {
-                id_dosen: "{{ session('last_data')['id_dosen'] }}",
+                nidn_dosen: "{{ session('last_data')['nidn_dosen'] }}",
                 nama_dosen: "{{ session('last_data')['nama_dosen'] }}"
             };
             localStorage.setItem('lastAddedDosen', JSON.stringify(lastData));

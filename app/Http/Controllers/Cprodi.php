@@ -30,7 +30,7 @@ class Cprodi extends Controller
     public function store(Request $request)
     {
        $validated = $request->validate([
-            'id_prodi' => 'required|min:1|max:50',
+            // 'id_prodi' => 'required|min:1|max:50',
             'nama_prodi' => 'required|min:1|max:50'
         ]);
         $prodi = Mprodi::create($validated);
@@ -41,7 +41,7 @@ class Cprodi extends Controller
             'icon' => 'success'
         ];
         $last_data = [
-            'id_prodi' => $prodi->id_prodi,
+            // 'id_prodi' => $prodi->id_prodi,
             'nama_prodi' => $prodi->nama_prodi,
         ];
         return redirect()->route('prodi.index')->with(compact('status', 'last_data'));
@@ -70,12 +70,12 @@ class Cprodi extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'id_prodi' => 'required|min:1|max:50',
+            // 'id_prodi' => 'required|min:1|max:50',
             'nama_prodi' => 'required|min:1|max:50'
         ]);
         $prodi = Mprodi::findOrFail($id);
         $prodi->update([
-            'id_prodi' => $request->id_prodi,
+            // 'id_prodi' => $request->id_prodi,
             'nama_prodi' => $request->nama_prodi
         ]);
         return redirect()->route('prodi.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil diubah', 'icon' => 'success']);

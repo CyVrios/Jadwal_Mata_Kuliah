@@ -9,10 +9,10 @@ class Mdosen extends Model
 {
     use HasFactory;
     protected $table = 'dosen';
-    protected $fillable = ['id_dosen', 'nama_dosen'];
+    protected $fillable = ['nidn_dosen', 'nama_dosen'];
 
     public function jadwal()
     {
-        return $this->hasMany(Mjadwal::class, 'id_dosen');
+        return $this->hasMany(Mjadwal::class, 'dosen_id');
     }
 }

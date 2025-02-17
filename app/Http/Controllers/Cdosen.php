@@ -30,7 +30,7 @@ class Cdosen extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'id_dosen' => 'required',
+            'nidn_dosen' => 'required',
             'nama_dosen' => 'required'
         ]);
 
@@ -43,7 +43,7 @@ class Cdosen extends Controller
             'icon' => 'success'
         ];
         $last_data = [
-            'id_dosen' => $dosen->id_dosen,
+            'nidn_dosen' => $dosen->nidn_dosen,
             'nama_dosen' => $dosen->nama_dosen
         ];
 
@@ -76,12 +76,12 @@ class Cdosen extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'id_dosen' => 'required|min:1|max:50',
+            'nidn_dosen' => 'required|min:1|max:50',
             'nama_dosen' => 'required|min:1|max:50'
         ]);
         $dosen = Mdosen::findOrFail($id);
         $dosen->update([
-            'id_dosen' => $request->id_dosen,
+            'nidn_dosen' => $request->nidn_dosen,
             'nama_dosen' => $request->nama_dosen
         ]);
         return redirect()->route('dosen.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil diubah', 'icon' => 'success']);

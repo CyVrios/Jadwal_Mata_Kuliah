@@ -41,7 +41,7 @@ class Cjadwal extends Controller
                 });
             })
             ->when($prodi, function ($query, $prodi) {
-                $query->where('id_prodi', $prodi);  // Filter berdasarkan id_prodi
+                $query->where('prodi_id', $prodi);  // Filter berdasarkan id_prodi
             })
             ->get();
 
@@ -73,7 +73,7 @@ class Cjadwal extends Controller
                     ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jamMulai])
                     ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jamSelesai]);
             })
-            ->pluck('id_ruangan');
+            ->pluck('ruangan_id');
 
         $availableRooms = Mruangan::whereNotIn('id', $occupiedRooms)->get();
 
@@ -114,9 +114,9 @@ class Cjadwal extends Controller
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
             'kelas' => 'required',
-            'id_dosen' => 'required|exists:dosen,id',
-            'id_ruangan' => 'nullable|exists:ruangan,id',
-            'id_prodi' => 'required|exists:prodi,id',
+            'dosen_id' => 'required|exists:dosen,id',
+            'ruangan_id' => 'nullable|exists:ruangan,id',
+            'prodi_id' => 'required|exists:prodi,id',
             'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
             'sks' => 'required',
             'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
@@ -179,7 +179,7 @@ class Cjadwal extends Controller
                         ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jadwal->jam_mulai])
                         ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jadwal->jam_selesai]);
                 })
-                ->pluck('id_ruangan');
+                ->pluck('ruangan_id');
 
             return !$occupiedRooms->contains($ruangan->id); // Pastikan ruangan tidak terisi
         });
@@ -205,16 +205,16 @@ class Cjadwal extends Controller
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
             'kelas' => 'required',
-            'id_dosen' => 'required|exists:dosen,id',
-            'id_ruangan' => 'nullable|exists:ruangan,id',  // Validasi ruangan
-            'id_prodi' => 'required|exists:prodi,id',
+            'dosen_id' => 'required|exists:dosen,id',
+            'ruangan_id' => 'nullable|exists:ruangan,id',
+            'prodi_id' => 'required|exists:prodi,id',
             'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
             'sks' => 'required',
             'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
         ]);
 
         // Memeriksa apakah ruangan masih kosong
-        $ruangan = Mruangan::findOrFail($validated['id_ruangan']);
+        $ruangan = Mruangan::findOrFail($validated['ruangan_id']);
         $occupiedRooms = Mjadwal::where('hari', $validated['hari'])
             ->where(function ($query) use ($validated) {
                 $query->whereBetween('jam_mulai', [$validated['jam_mulai'], $validated['jam_selesai']])
@@ -222,10 +222,10 @@ class Cjadwal extends Controller
                     ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$validated['jam_mulai']])
                     ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$validated['jam_selesai']]);
             })
-            ->pluck('id_ruangan');
+            ->pluck('ruangan_id');
 
         if ($occupiedRooms->contains($ruangan->id)) {
-            return redirect()->back()->withErrors(['id_ruangan' => 'Ruangan sudah terisi pada waktu tersebut.']);
+            return redirect()->back()->withErrors(['ruangan_id' => 'Ruangan sudah terisi pada waktu tersebut.']);
         }
 
         // Update data

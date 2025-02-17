@@ -5,47 +5,47 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Mjadwal extends Model
+class MJadwal extends Model
 {
     use HasFactory;
+    
     protected $table = 'jadwal';
+    
     protected $fillable = [
         'hari',
         'jam_mulai',
         'jam_selesai',
-        'id_dosen',
+        'dosen_id',    // Perubahan dari id_dosen
         'kelas',
-        'id_ruangan',
+        'ruangan_id',  // Perubahan dari id_ruangan
         'kode_matkul',
-        'id_prodi',
+        'prodi_id',    // Perubahan dari id_prodi
         'mode_pembelajaran',
         'sks',
         'smt',
     ];
 
-
+    // Relasi ke dosen
     public function dosen()
     {
-        return $this->belongsTo(Mdosen::class, 'id_dosen');
+        return $this->belongsTo(Mdosen::class, 'dosen_id');
     }
 
-    // public function kelas()
-    // {
-    //     return $this->belongsTo(Mkelas::class, 'id_kelas');
-    // }
-
+    // Relasi ke mata kuliah
     public function matkul()
     {
         return $this->belongsTo(Mmatkul::class, 'kode_matkul');
     }
 
+    // Relasi ke ruangan
     public function ruangan()
     {
-        return $this->belongsTo(Mruangan::class, 'id_ruangan');
+        return $this->belongsTo(Mruangan::class, 'ruangan_id');
     }
 
+    // Relasi ke prodi
     public function prodi()
     {
-        return $this->belongsTo(Mprodi::class, 'id_prodi');
+        return $this->belongsTo(Mprodi::class, 'prodi_id');
     }
 }

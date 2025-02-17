@@ -10,11 +10,11 @@ class Mprodi extends Model
     use HasFactory;
 
     protected $table = 'prodi';
-    protected $fillable = ['id_prodi', 'nama_prodi'];
+    protected $fillable = ['nama_prodi'];
 
     public function jadwal()
     {
-        return $this->hasMany(Mjadwal::class, 'id_prodi');
+        return $this->hasMany(Mjadwal::class, 'prodi_id');
     }
 
     // public function matkul()
