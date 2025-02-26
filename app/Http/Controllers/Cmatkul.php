@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mmatkul;
-use App\Models\Mprodi;
+// use App\Models\Mprodi;
 use Illuminate\Http\Request;
 
 class Cmatkul extends Controller
@@ -40,9 +40,10 @@ class Cmatkul extends Controller
             'kode_matkul' => 'required|unique:matkul,kode_matkul,except,id',
             'nama_matkul' => 'required',
             'smt' => 'required',
+            'sks' => 'required',
             // 'id_prodi' => 'required|exists:prodi,id',
         ]);
-        
+
         $matkul = Mmatkul::create($validated);
 
         // $matkul->load('prodi');
@@ -56,6 +57,7 @@ class Cmatkul extends Controller
             'kode_matkul' => $matkul->kode_matkul,
             'nama_matkul' => $matkul->nama_matkul,
             'smt'         => $matkul->smt,
+            'sks'         => $matkul->sks,
             // 'nama_prodi' => $matkul->prodi->nama_prodi
         ];
         return redirect()->route('matkul.index')->with(compact('status', 'last_data'));
@@ -92,9 +94,10 @@ class Cmatkul extends Controller
             'nama_matkul' => 'required|min:1|max:30',
             'kode_matkul' => 'required',
             'smt' => 'required',
+            'sks' => 'required',
             // 'id_prodi' => 'required|exists:prodi,id'
         ]);
-        
+
         $matkul->update($validated);
         return redirect()->route('matkul.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil diubah', 'icon' => 'success']);
     }
@@ -103,24 +106,23 @@ class Cmatkul extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-{
-    $matkul = Mmatkul::findOrFail($id);
+    {
+        $matkul = Mmatkul::findOrFail($id);
 
-    // Pastikan jadwal yang terkait dengan mata kuliah ini sudah dihapus
-    if ($matkul->jadwal()->exists()) {
+        // Pastikan jadwal yang terkait dengan mata kuliah ini sudah dihapus
+        if ($matkul->jadwal()->exists()) {
+            return redirect()->route('matkul.index')->with('status', [
+                'judul' => 'Gagal',
+                'pesan' => 'Mata kuliah tidak dapat dihapus karena masih memiliki jadwal terkait.',
+                'icon' => 'error',
+            ]);
+        }
+
+        $matkul->delete();
         return redirect()->route('matkul.index')->with('status', [
-            'judul' => 'Gagal',
-            'pesan' => 'Mata kuliah tidak dapat dihapus karena masih memiliki jadwal terkait.',
-            'icon' => 'error',
+            'judul' => 'Berhasil',
+            'pesan' => 'Data berhasil dihapus.',
+            'icon' => 'success',
         ]);
     }
-
-    $matkul->delete();
-    return redirect()->route('matkul.index')->with('status', [
-        'judul' => 'Berhasil',
-        'pesan' => 'Data berhasil dihapus.',
-        'icon' => 'success',
-    ]);
-}
-
 }

@@ -26,6 +26,9 @@ Route::get('/', function () {
 
 Route::get('/jadwal/export', [Cjadwal::class, 'export'])->name('jadwal.export');
 Route::get('/check-available-rooms', [Cjadwal::class, 'checkAvailableRooms']);
+Route::post('/jadwal/checkDosen', [Cjadwal::class, 'checkDosen'])->name('jadwal.checkDosen');
+Route::delete('/jadwal/bulk-delete', [Cjadwal::class, 'bulkDelete'])->name('jadwal.bulkDelete');
+
 
 
 Route::resource('dosen', Cdosen::class);

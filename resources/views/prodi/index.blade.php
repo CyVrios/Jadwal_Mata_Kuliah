@@ -113,7 +113,7 @@
                         </div> --}}
                         <div class="form-group">
                             Nama prodi:
-                            <input type="text" name="nama_prodi" id="" class="form-control" required>
+                            <input type="text" name="nama_prodi" id="" class="form-control" value="{{ old('nama_prodi') }}" required>
                         </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
@@ -170,6 +170,52 @@
             </div>
         </div>
     @endforeach
+
+    {{-- script untuk delete semua/pilih --}}
+    <script>
+        document.getElementById('select-all').addEventListener('change', function() {
+            let checkboxes = document.querySelectorAll('input[name="selected[]"]');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        document.getElementById('delete-selected').addEventListener('click', function() {
+            let selectedIds = Array.from(document.querySelectorAll('input[name="selected[]"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedIds.length === 0) {
+                alert("Pilih setidaknya satu data untuk dihapus.");
+                return;
+            }
+
+            if (confirm("Apakah Anda yakin ingin menghapus data yang dipilih?")) {
+                let form = document.createElement("form");
+                form.method = "POST";
+                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.innerHTML = `
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="selected" value="${selectedIds.join(',')}">
+        `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        document.getElementById('delete-all').addEventListener('click', function() {
+            if (confirm("Apakah Anda yakin ingin menghapus SEMUA data?")) {
+                let form = document.createElement("form");
+                form.method = "POST";
+                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.innerHTML = `
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="delete_all" value="1">
+        `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    </script>
 
     <script>
         $(document).ready(function() {

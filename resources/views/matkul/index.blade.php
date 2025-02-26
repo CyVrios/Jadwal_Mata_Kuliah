@@ -35,7 +35,7 @@
         <p class="m-0">Kode Mata Kuliah: <span id="last-kode-matkul"></span></p>
         <p class="m-0">Nama Mata Kuliah: <span id="last-nama-matkul"></span></p>
         <p class="m-0">Semester: <span id="last-smt"></span></p>
-        {{-- <p class="m-0">Nama Prodi: <span id="last-nama-prodi"></span></p> --}}
+        <p class="m-0">SKS: <span id="last-sks"></span></p>
     </div>
 
     <table id="table" class="table table-bordered table-hover display">
@@ -53,9 +53,9 @@
                 <th class="tengah">
                     Semester
                 </th>
-                {{-- <th class="tengah">
-                    Prodi
-                </th> --}}
+                <th class="tengah">
+                    SKS
+                </th>
                 <th class="tengah">
                     Aksi
                 </th>
@@ -68,7 +68,7 @@
                     <td class="tengah">{{ $d->kode_matkul }}</td>
                     <td class="tengah">{{ $d->nama_matkul }}</td>
                     <td class="tengah">{{ $d->smt }}</td>
-                    {{-- <td class="tengah">{{ $d->prodi->nama_prodi ?? '-' }}</td> --}}
+                    <td class="tengah">{{ $d->sks}}</td>
                     <td class="tengah">
                         <!-- Tombol Edit -->
                         <a href="javascript:void(0)" class="btn btn-success btn-sm" data-toggle="modal"
@@ -130,15 +130,10 @@
                             Semester:
                             <input type="text" name="smt" id="" class="form-control" required>
                         </div>
-                        {{-- <div class="form-group">
-                            Prodi:
-                            <select name="id_prodi" class="form-control">
-                                <option value="">-- Pilih Prodi --</option>
-                                @foreach ($prodi as $prodiItem)
-                                    <option value="{{ $prodiItem->id }}">{{ $prodiItem->nama_prodi }}</option>
-                                @endforeach
-                            </select>
-                        </div> --}}
+                        <div class="form-group">
+                            SKS:
+                            <input type="text" name="sks" id="" class="form-control" required>
+                        </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </form>
@@ -189,6 +184,11 @@
                                 <input type="text" name="smt" class="form-control"
                                     value="{{ $d->smt }}" required>
                             </div>
+                            <div class="form-group">
+                                SKS:
+                                <input type="text" name="sks" class="form-control"
+                                    value="{{ $d->sks }}" required>
+                            </div>
                             {{-- <div class="form-group">
                                 Prodi:
                                 <select name="id_prodi" class="form-control">
@@ -212,6 +212,52 @@
             </div>
         </div>
     @endforeach
+
+    {{-- script untuk delete semua/pilih --}}
+    <script>
+        document.getElementById('select-all').addEventListener('change', function() {
+            let checkboxes = document.querySelectorAll('input[name="selected[]"]');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        document.getElementById('delete-selected').addEventListener('click', function() {
+            let selectedIds = Array.from(document.querySelectorAll('input[name="selected[]"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedIds.length === 0) {
+                alert("Pilih setidaknya satu data untuk dihapus.");
+                return;
+            }
+
+            if (confirm("Apakah Anda yakin ingin menghapus data yang dipilih?")) {
+                let form = document.createElement("form");
+                form.method = "POST";
+                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.innerHTML = `
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="selected" value="${selectedIds.join(',')}">
+        `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        document.getElementById('delete-all').addEventListener('click', function() {
+            if (confirm("Apakah Anda yakin ingin menghapus SEMUA data?")) {
+                let form = document.createElement("form");
+                form.method = "POST";
+                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.innerHTML = `
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="delete_all" value="1">
+        `;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    </script>
 
     <script>
         $(document).ready(function() {
@@ -286,10 +332,12 @@
                 const lastKodeMatkul = document.getElementById('last-kode-matkul');
                 const lastNamaMatkul = document.getElementById('last-nama-matkul');
                 const lastSmt = document.getElementById('last-smt');
+                const lastSks = document.getElementById('last-sks');
 
                 lastKodeMatkul.textContent = lastData.kode_matkul;
                 lastNamaMatkul.textContent = lastData.nama_matkul;
                 lastSmt.textContent = lastData.smt;
+                lastSks.textContent = lastData.sks;
 
                 lastDataContainer.style.display = 'block';
             }
@@ -301,7 +349,8 @@
             const lastData = {
                 kode_matkul: "{{ session('last_data')['kode_matkul'] }}",
                 nama_matkul: "{{ session('last_data')['nama_matkul'] }}",
-                smt: "{{ session('last_data')['smt'] }}"
+                smt: "{{ session('last_data')['smt'] }}",
+                sks: "{{ session('last_data')['sks'] }}"
             };
             localStorage.setItem('lastAddedMatkul', JSON.stringify(lastData));
         @endif

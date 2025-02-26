@@ -68,10 +68,8 @@ class Cjadwal extends Controller
 
         $occupiedRooms = Mjadwal::where('hari', $hari)
             ->where(function ($query) use ($jamMulai, $jamSelesai) {
-                $query->whereBetween('jam_mulai', [$jamMulai, $jamSelesai])
-                    ->orWhereBetween('jam_selesai', [$jamMulai, $jamSelesai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jamMulai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$jamSelesai]);
+                $query->where('jam_mulai', '<', $jamSelesai) // Perubahan di sini
+                    ->where('jam_selesai', '>', $jamMulai); // Perubahan di sini
             })
             ->pluck('ruangan_id');
 
@@ -80,6 +78,21 @@ class Cjadwal extends Controller
         return response()->json($availableRooms);
     }
 
+
+    public function checkDosen(Request $request)
+    {
+        $cekJadwalDosen = Mjadwal::where('hari', $request->hari)
+            ->where('dosen_id', $request->dosen_id)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_mulai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_selesai]);
+            })
+            ->exists();
+
+        return response()->json(['available' => !$cekJadwalDosen]);
+    }
 
     public function export(Request $request)
     {
@@ -118,9 +131,24 @@ class Cjadwal extends Controller
             'ruangan_id' => 'nullable|exists:ruangan,id',
             'prodi_id' => 'required|exists:prodi,id',
             'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
-            'sks' => 'required',
-            'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
+            // 'sks' => 'required',
+            // 'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
         ]);
+
+        // Cek apakah dosen sudah memiliki jadwal bertabrakan
+        $cekJadwalDosen = Mjadwal::where('hari', $request->hari)
+            ->where('dosen_id', $request->dosen_id)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_mulai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_selesai]);
+            })
+            ->exists();
+
+        if ($cekJadwalDosen) {
+            return redirect()->back()->withErrors(['dosen_id' => 'Dosen sudah memiliki jadwal pada waktu tersebut.'])->withInput();
+        }
 
         // Simpan jadwal ke database
         $jadwal = Mjadwal::create($validated);
@@ -137,8 +165,8 @@ class Cjadwal extends Controller
             'kelas' => $jadwal->kelas,
             'nama_ruangan' => $jadwal->ruangan->nama_ruangan ?? '-',
             'smt' => $jadwal->matkul->smt ?? '-', // Ambil smt dari relasi matkul
-            'sks' => $jadwal->sks,
-            'mode_pembelajaran' => $jadwal->mode_pembelajaran,
+            'sks' => $jadwal->matkul->sks ?? '-', // Ambil sks dari relasi matkul
+            // 'mode_pembelajaran' => $jadwal->mode_pembelajaran,
         ];
 
         $status = [
@@ -208,24 +236,43 @@ class Cjadwal extends Controller
             'dosen_id' => 'required|exists:dosen,id',
             'ruangan_id' => 'nullable|exists:ruangan,id',
             'prodi_id' => 'required|exists:prodi,id',
-            'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
-            'sks' => 'required',
-            'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
+            'kode_matkul' => 'required|exists:matkul,id',
+            // 'sks' => 'required',
+            // 'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
         ]);
 
-        // Memeriksa apakah ruangan masih kosong
-        $ruangan = Mruangan::findOrFail($validated['ruangan_id']);
-        $occupiedRooms = Mjadwal::where('hari', $validated['hari'])
-            ->where(function ($query) use ($validated) {
-                $query->whereBetween('jam_mulai', [$validated['jam_mulai'], $validated['jam_selesai']])
-                    ->orWhereBetween('jam_selesai', [$validated['jam_mulai'], $validated['jam_selesai']])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$validated['jam_mulai']])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$validated['jam_selesai']]);
-            })
-            ->pluck('ruangan_id');
+        // Hanya lakukan pengecekan jika ada ruangan yang dipilih
+        if (!empty($validated['ruangan_id'])) {
+            $occupiedRooms = Mjadwal::where('hari', $validated['hari'])
+                ->where('id', '!=', $id) // Kecualikan jadwal yang sedang diedit
+                ->where(function ($query) use ($validated) {
+                    $query->where(function ($q) use ($validated) {
+                        $q->where('jam_mulai', '<', $validated['jam_selesai'])
+                            ->where('jam_selesai', '>', $validated['jam_mulai']);
+                    });
+                })
+                ->pluck('ruangan_id');
 
-        if ($occupiedRooms->contains($ruangan->id)) {
-            return redirect()->back()->withErrors(['ruangan_id' => 'Ruangan sudah terisi pada waktu tersebut.']);
+
+            if ($occupiedRooms->contains($validated['ruangan_id'])) {
+                return redirect()->back()->withErrors(['ruangan_id' => 'Ruangan sudah terisi pada waktu tersebut.']);
+            }
+        }
+
+        // Cek apakah dosen sudah memiliki jadwal bertabrakan (kecuali jadwal yang sedang diedit)
+        $cekJadwalDosen = Mjadwal::where('hari', $request->hari)
+            ->where('dosen_id', $request->dosen_id)
+            ->where('id', '!=', $id) // Abaikan jadwal yang sedang diedit
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_mulai])
+                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_selesai]);
+            })
+            ->exists();
+
+        if ($cekJadwalDosen) {
+            return redirect()->back()->withErrors(['dosen_id' => 'Dosen sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
 
         // Update data
@@ -240,15 +287,31 @@ class Cjadwal extends Controller
         return redirect()->route('jadwal.index')->with(compact('status'));
     }
 
+    // method untuk delete semua/terpilih
+    public function bulkDelete(Request $request)
+    {
+        if ($request->has('delete_all')) {
+            Mjadwal::truncate();
+            return redirect()->back()->with('success', 'Semua data berhasil dihapus!');
+        }
+
+        if ($request->has('selected')) {
+            $ids = explode(',', $request->selected);
+            Mjadwal::whereIn('id', $ids)->delete();
+            return redirect()->back()->with('success', 'Data terpilih berhasil dihapus!');
+        }
+
+        return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+    }
 
     /**
      * Menghapus jadwal tertentu dari database
      */
-    public function destroy($id)
-    {
-        $jadwal = Mjadwal::findOrFail($id);
-        $jadwal->delete();
+    // public function destroy($id)
+    // {
+    //     $jadwal = Mjadwal::findOrFail($id);
+    //     $jadwal->delete();
 
-        return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
-    }
+    //     return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
+    // }
 }

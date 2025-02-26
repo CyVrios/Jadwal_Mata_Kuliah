@@ -20,8 +20,8 @@ class MJadwal extends Model
         'ruangan_id',  // Perubahan dari id_ruangan
         'kode_matkul',
         'prodi_id',    // Perubahan dari id_prodi
-        'mode_pembelajaran',
-        'sks',
+        // 'mode_pembelajaran',
+        // 'sks',
         'smt',
     ];
 

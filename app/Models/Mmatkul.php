@@ -10,7 +10,7 @@ class Mmatkul extends Model
     use HasFactory;
 
     protected $table = 'matkul';
-    protected $fillable = ['nama_matkul', 'kode_matkul', 'smt'];
+    protected $fillable = ['nama_matkul', 'kode_matkul', 'smt', 'sks'];
 
 
     // public function prodi()
