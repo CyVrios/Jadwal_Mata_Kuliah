@@ -34,10 +34,17 @@
         <p class="m-0">Nama Dosen: <span id="last-nama-dosen"></span></p>
     </div>
 
+     <!-- Tombol Hapus -->
+     <div class="mb-2">
+        <button id="delete-selected" class="btn btn-danger btn-sm">Hapus Data Terpilih</button>
+        <button id="delete-all" class="btn btn-warning btn-sm">Hapus Semua Data</button>
+    </div>
+
     <table id="table" class="table table-bordered table-hover display">
 
         <thead>
             <tr>
+                <th><input type="checkbox" id="select-all"></th>
                 <th class="tengah">
                     NO
                 </th>
@@ -55,6 +62,7 @@
         <tbody>
             @forelse ($dosen as $d)
                 <tr>
+                    <td class="text-center"><input type="checkbox" name="selected[]" value="{{ $d->id ?? '-' }}"></td>
                     <td class="tengah">{{ $loop->iteration }}</td>
                     <td class="tengah">{{ $d->nidn_dosen }}</td>
                     <td class="tengah">{{ $d->nama_dosen }}</td>
@@ -63,7 +71,7 @@
                         <a href="javascript:void(0)" class="btn btn-success btn-sm" data-toggle="modal"
                             data-target="#editModal-{{ $d->id }}"><i class="fa fa-edit"></i></a>
 
-                        <!-- Tombol Delete dengan SweetAlert -->
+                        {{-- <!-- Tombol Delete dengan SweetAlert -->
                         <button class="btn btn-danger btn-sm delete-btn" data-id="{{ $d->id }}">
                             <i class="fa fa-trash"></i>
                         </button>
@@ -73,12 +81,12 @@
                             method="POST" style="display: none;">
                             @csrf
                             @method('DELETE')
-                        </form>
+                        </form> --}}
 
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="tengah">Tidak ada data Dosen.</td>
+                    <td colspan="10" class="tengah">Tidak ada data dosen.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -193,7 +201,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus data yang dipilih?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('dosen.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')
@@ -208,7 +216,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus SEMUA data?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('dosen.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')

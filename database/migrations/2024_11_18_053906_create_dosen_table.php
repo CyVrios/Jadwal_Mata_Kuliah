@@ -13,8 +13,8 @@
         {
             Schema::create('dosen', function (Blueprint $table) {
                 $table->id();
-                $table->string('id_dosen')->unique()->nullable();
-                $table->string('nama_dosen');
+                $table->string('nidn_dosen')->unique()->nullable();
+                $table->string('nama_dosen')->unique()->nullable();
                 $table->timestamps();
             });
         }

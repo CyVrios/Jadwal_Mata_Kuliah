@@ -10,8 +10,8 @@ return new class extends Migration {
             $table->id();
             $table->string('kode_matkul')->unique();
             $table->string('nama_matkul');
-            $table->unsignedBigInteger('id_prodi'); // Relasi ke tabel prodi
-            $table->foreign('id_prodi')->references('id')->on('prodi')->onDelete('cascade');
+            $table->string('smt');
+            $table->string('sks');
             $table->timestamps();
         });
     }

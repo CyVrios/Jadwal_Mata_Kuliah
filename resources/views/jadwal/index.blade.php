@@ -179,11 +179,11 @@
 
                         <div class="form-group">
                             <label for="ruangan_id">Mata Kuliah:</label>
-                            <select name="kode_matkul" id="kode_matkul" class="form-control" required>
+                            <select name="kode_matkul" id="kode_matkul" class="select2 form-control" required>
                                 <option value="">-- Pilih Mata Kuliah --</option>
                                 @foreach ($matkul as $matkuls)
                                     <option value="{{ $matkuls->id }}" data-sks="{{ $matkuls->sks }}">
-                                        {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }} - {{ $matkuls->sks }}
+                                        {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }} - semester {{ $matkuls->smt }} - sks {{ $matkuls->sks }}
                                     </option>
                                 @endforeach
                             </select>
@@ -253,7 +253,7 @@
 
                         <div class="form-group">
                             Dosen:
-                            <select name="dosen_id" class="form-control">
+                            <select name="dosen_id" id="dosen_id" class="select2 form-control">
                                 <option value="">-- Pilih Dosen --</option>
                                 @foreach ($dosen as $dosens)
                                     <option value="{{ $dosens->id }}"
@@ -472,6 +472,35 @@
             });
         </script>
     @endif
+
+    {{-- script untuk select2 --}}
+    <script>
+        // select2 untuk matkul
+        $(document).ready(function() {
+            $('#tambah').on('shown.bs.modal', function() {
+                $('#kode_matkul').select2({
+                    width: '100%',
+                    placeholder: "-- Pilih Mata Kuliah --",
+                    allowClear: true,
+                    dropdownParent: $("#tambah") 
+                });
+            });
+
+        });
+
+        // select2 untuk dosen
+        $(document).ready(function() {
+            $('#tambah').on('shown.bs.modal', function() {
+                $('#dosen_id').select2({
+                    width: '100%',
+                    placeholder: "-- Pilih Dosen --",
+                    allowClear: true,
+                    dropdownParent: $("#tambah") 
+                });
+            });
+
+        });
+    </script>
 
     {{-- script untuk delete semua/pilih --}}
     <script>

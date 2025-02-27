@@ -79,19 +79,28 @@ class Cjadwal extends Controller
     }
 
 
-    public function checkDosen(Request $request)
+    public function checkAvailableDosen(Request $request)
     {
-        $cekJadwalDosen = Mjadwal::where('hari', $request->hari)
-            ->where('dosen_id', $request->dosen_id)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
-                    ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_mulai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_selesai]);
-            })
-            ->exists();
+        $hari = $request->input('hari');
+        $jamMulai = $request->input('jam_mulai');
+        $jamSelesai = $request->input('jam_selesai');
 
-        return response()->json(['available' => !$cekJadwalDosen]);
+        if (!$hari || !$jamMulai || !$jamSelesai) {
+            return response()->json(['error' => 'Parameter tidak lengkap'], 400);
+        }
+
+        // Ambil daftar dosen yang sudah terjadwal di waktu yang sama
+        $occupiedDosen = Mjadwal::where('hari', $hari)
+            ->where(function ($query) use ($jamMulai, $jamSelesai) {
+                $query->where('jam_mulai', '<', $jamSelesai)
+                    ->where('jam_selesai', '>', $jamMulai);
+            })
+            ->pluck('dosen_id');
+
+        // Ambil daftar dosen yang tidak sedang mengajar
+        $availableDosen = Mdosen::whereNotIn('id', $occupiedDosen)->get();
+
+        return response()->json($availableDosen);
     }
 
     public function export(Request $request)
@@ -130,25 +139,22 @@ class Cjadwal extends Controller
             'dosen_id' => 'required|exists:dosen,id',
             'ruangan_id' => 'nullable|exists:ruangan,id',
             'prodi_id' => 'required|exists:prodi,id',
-            'kode_matkul' => 'required|exists:matkul,id', // Gunakan kode matkul
-            // 'sks' => 'required',
-            // 'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
+            'kode_matkul' => 'required|exists:matkul,id',
         ]);
 
         // Cek apakah dosen sudah memiliki jadwal bertabrakan
         $cekJadwalDosen = Mjadwal::where('hari', $request->hari)
             ->where('dosen_id', $request->dosen_id)
             ->where(function ($query) use ($request) {
-                $query->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
-                    ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_mulai])
-                    ->orWhereRaw('? BETWEEN jam_mulai AND jam_selesai', [$request->jam_selesai]);
+                $query->where('jam_mulai', '<', $request->jam_selesai) // Dosen sudah mengajar sebelum waktu selesai
+                    ->where('jam_selesai', '>', $request->jam_mulai); // Dosen masih mengajar saat waktu mulai
             })
             ->exists();
 
         if ($cekJadwalDosen) {
             return redirect()->back()->withErrors(['dosen_id' => 'Dosen sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
+
 
         // Simpan jadwal ke database
         $jadwal = Mjadwal::create($validated);
@@ -166,7 +172,7 @@ class Cjadwal extends Controller
             'nama_ruangan' => $jadwal->ruangan->nama_ruangan ?? '-',
             'smt' => $jadwal->matkul->smt ?? '-', // Ambil smt dari relasi matkul
             'sks' => $jadwal->matkul->sks ?? '-', // Ambil sks dari relasi matkul
-            // 'mode_pembelajaran' => $jadwal->mode_pembelajaran,
+
         ];
 
         $status = [

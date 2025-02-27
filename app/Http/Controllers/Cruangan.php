@@ -71,7 +71,7 @@ class Cruangan extends Controller
     {
         $request->validate([
             // 'id_ruangan' => 'required|min:1|max:10',
-            'nama_ruangan' => 'required|min:1|max:20',
+            'nama_ruangan' => 'required|min:1|max:30',
         ]);
         $ruangan = Mruangan::findOrFail($id);
         $ruangan->update([
@@ -81,13 +81,58 @@ class Cruangan extends Controller
         return redirect()->route('ruangan.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil diubah', 'icon' => 'success']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        $ruangan = Mruangan::findOrFail($id);
-        $ruangan->delete();
-        return redirect()->route('ruangan.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil dihapus', 'icon' => 'success']);
-    }
+    public function bulkDelete(Request $request)
+     {
+         if ($request->has('delete_all')) {
+             // Cek apakah ada data ruangan yang memiliki jadwal terkait
+             $ruanganDenganJadwal = Mruangan::whereHas('jadwal')->pluck('nama_ruangan')->toArray();
+     
+             if (!empty($ruanganDenganJadwal)) {
+                 return redirect()->back()->with('status', [
+                     'judul' => 'Gagal',
+                     'pesan' => 'Beberapa data ruangan tidak dapat dihapus karena masih memiliki jadwal terkait: ' . implode(', ', $ruanganDenganJadwal),
+                     'icon' => 'error',
+                 ]);
+             }
+     
+             Mruangan::truncate(); // Hapus semua data ruangan jika tidak ada yang memiliki jadwal terkait
+             return redirect()->back()->with('success', 'Semua data ruangan berhasil dihapus!');
+         }
+     
+         if ($request->has('selected')) {
+             $ids = explode(',', $request->selected);
+             $ruanganList = Mruangan::whereIn('id', $ids)->get();
+             $blockedRuangan = [];
+     
+             foreach ($ruanganList as $ruangan) {
+                 if ($ruangan->jadwal()->exists()) {
+                     $blockedRuangan[] = $ruangan->nama_ruangan; // Simpan nama ruangan yang tidak bisa dihapus
+                     continue; // Lewati penghapusan ruangan ini
+                 }
+                 $ruangan->delete();
+             }
+             
+             if (!empty($blockedRuangan)) {
+                 return redirect()->back()->with('status', [
+                     'judul' => 'Gagal',
+                     'pesan' => 'Beberapa data ruangan tidak dapat dihapus karena masih memiliki jadwal terkait: ' . implode(', ', $blockedRuangan),
+                     'icon' => 'error',
+                 ]);
+             }
+     
+             return redirect()->back()->with('success', 'data ruangan yang dipilih berhasil dihapus!');
+         }
+     
+         return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+     }
+
+    // /**
+    //  * Remove the specified resource from storage.
+    //  */
+    // public function destroy($id)
+    // {
+    //     $ruangan = Mruangan::findOrFail($id);
+    //     $ruangan->delete();
+    //     return redirect()->route('ruangan.index')->with('status', ['judul' => 'Berhasil', 'pesan' => 'Data berhasil dihapus', 'icon' => 'success']);
+    // }
 }

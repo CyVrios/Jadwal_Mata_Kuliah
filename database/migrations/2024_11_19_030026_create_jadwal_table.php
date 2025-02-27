@@ -15,35 +15,30 @@ class CreateJadwalTable extends Migration
     {
         Schema::create('jadwal', function (Blueprint $table) {
             $table->id();
-            $table->string('hari'); // Hari (Senin, Selasa, dll)
+            $table->string('hari', 255); // Hari (Senin, Selasa, dll)
             $table->time('jam_mulai'); // Waktu mulai
             $table->time('jam_selesai'); // Waktu selesai
-            $table->string('smt'); // semester
-            $table->string('sks'); // jumlah sks
-
-            // Foreign key ke tabel dosens
-            $table->unsignedBigInteger('id_dosen')->nullable();
-            $table->foreign('id_dosen')->references('id')->on('dosen')->onDelete('cascade');
-
-            // Foreign key ke tabel kelas
-            $table->unsignedBigInteger('id_kelas')->nullable();
-            $table->foreign('id_kelas')->references('id')->on('kelas')->onDelete('cascade');
-
+            $table->string('kelas', 50)->nullable(); // Kelas, sesuai dengan database
+        
+            // Foreign key ke tabel dosen
+            $table->unsignedBigInteger('dosen_id')->nullable();
+            $table->foreign('dosen_id')->references('id')->on('dosen')->onDelete('no action');
+        
             // Foreign key ke tabel ruangan
-            $table->unsignedBigInteger('id_ruangan')->nullable();
-            $table->foreign('id_ruangan')->references('id')->on('ruangan')->onDelete('cascade');
-
+            $table->unsignedBigInteger('ruangan_id')->nullable();
+            $table->foreign('ruangan_id')->references('id')->on('ruangan')->onDelete('no action');
+        
             // Foreign key ke tabel matkul
-            $table->unsignedBigInteger('kode_matkul')->nullable(); // Nullable
-            $table->foreign('kode_matkul')->references('id')->on('matkul')->onDelete('cascade');
-
+            $table->unsignedBigInteger('kode_matkul')->nullable();
+            $table->foreign('kode_matkul')->references('id')->on('matkul')->onDelete('no action');
+        
             // Foreign key untuk program studi
-            $table->unsignedBigInteger('id_prodi');
-            $table->foreign('id_prodi')->references('id')->on('prodi')->onDelete('cascade');
-
-            $table->enum('mode_pembelajaran', ['luring', 'daring', 'luring/daring']); // Mode pembelajaran
+            $table->unsignedBigInteger('prodi_id');
+            $table->foreign('prodi_id')->references('id')->on('prodi')->onDelete('no action');
+        
             $table->timestamps();
         });
+        
     }
 
     /**

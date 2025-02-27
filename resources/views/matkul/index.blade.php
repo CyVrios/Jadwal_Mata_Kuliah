@@ -26,6 +26,12 @@
         Tambah Data
     </button>
 
+    <!-- Tombol Import -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#importModal" style="margin-bottom: 20px;">
+        Import Data
+    </button>
+
+
     <!-- Tempat Menampilkan Data Terakhir -->
     <div id="last-data-container" class="alert alert-info alert-dismissible fade show" style="display: none;">
         <button type="button" class="close" aria-label="Close" id="close-notification">
@@ -38,9 +44,16 @@
         <p class="m-0">SKS: <span id="last-sks"></span></p>
     </div>
 
+    <!-- Tombol Hapus -->
+    <div class="mb-2">
+        <button id="delete-selected" class="btn btn-danger btn-sm">Hapus Data Terpilih</button>
+        <button id="delete-all" class="btn btn-warning btn-sm">Hapus Semua Data</button>
+    </div>
+
     <table id="table" class="table table-bordered table-hover display">
         <thead>
             <tr>
+                <th><input type="checkbox" id="select-all"></th>
                 <th class="tengah">
                     NO
                 </th>
@@ -64,16 +77,17 @@
         <tbody>
             @forelse ($matkul as $d)
                 <tr>
+                    <td class="text-center"><input type="checkbox" name="selected[]" value="{{ $d->id ?? '-' }}"></td>
                     <td class="tengah">{{ $loop->iteration }}</td>
                     <td class="tengah">{{ $d->kode_matkul }}</td>
                     <td class="tengah">{{ $d->nama_matkul }}</td>
                     <td class="tengah">{{ $d->smt }}</td>
-                    <td class="tengah">{{ $d->sks}}</td>
+                    <td class="tengah">{{ $d->sks }}</td>
                     <td class="tengah">
                         <!-- Tombol Edit -->
                         <a href="javascript:void(0)" class="btn btn-success btn-sm" data-toggle="modal"
                             data-target="#editModal-{{ $d->id }}"><i class="fa fa-edit"></i></a>
-
+                        {{-- 
                         <!-- Tombol Delete dengan SweetAlert -->
                         <button class="btn btn-danger btn-sm delete-btn" data-id="{{ $d->id }}">
                             <i class="fa fa-trash"></i>
@@ -84,15 +98,44 @@
                             method="POST" style="display: none;">
                             @csrf
                             @method('DELETE')
-                        </form>
+                        </form> --}}
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="tengah">Tidak ada data jadwal.</td>
+                    <td colspan="10" class="tengah">Tidak ada data matkul.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Data Mata Kuliah</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('matkul.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label for="file">Pilih File Excel</label>
+                            <input type="file" name="file" class="form-control" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Import</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal Tambah -->
     <div class="modal fade" id="tambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -166,7 +209,8 @@
                         @endif
 
                         <!-- Form Edit -->
-                        <form action="{{ route('matkul.update', $d->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('matkul.update', $d->id) }}" method="POST"
+                            enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="form-group">
@@ -181,13 +225,13 @@
                             </div>
                             <div class="form-group">
                                 Semester:
-                                <input type="text" name="smt" class="form-control"
-                                    value="{{ $d->smt }}" required>
+                                <input type="text" name="smt" class="form-control" value="{{ $d->smt }}"
+                                    required>
                             </div>
                             <div class="form-group">
                                 SKS:
-                                <input type="text" name="sks" class="form-control"
-                                    value="{{ $d->sks }}" required>
+                                <input type="text" name="sks" class="form-control" value="{{ $d->sks }}"
+                                    required>
                             </div>
                             {{-- <div class="form-group">
                                 Prodi:
@@ -232,7 +276,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus data yang dipilih?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('matkul.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')
@@ -247,7 +291,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus SEMUA data?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('matkul.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')
@@ -280,12 +324,13 @@
     @if (session('status'))
         <script>
             Swal.fire({
-                title: "{{ session('status')['judul'] }}",
-                text: "{{ session('status')['pesan'] }}",
-                icon: "{{ session('status')['icon'] }}"
+                title: "{{ session('status.judul') }}",
+                text: "{{ session('status.pesan') }}",
+                icon: "{{ session('status.icon') }}"
             });
         </script>
     @endif
+
 
 
     <script>

@@ -33,10 +33,16 @@
         <p class="m-0">Nama Prodi: <span id="last-nama-prodi"></span></p>
     </div>
 
+    <!-- Tombol Hapus -->
+    <div class="mb-2">
+        <button id="delete-selected" class="btn btn-danger btn-sm">Hapus Data Terpilih</button>
+        <button id="delete-all" class="btn btn-warning btn-sm">Hapus Semua Data</button>
+    </div>
 
     <table id='table' class="table table-bordered table-hover display">
         <thead>
             <tr>
+                <th><input type="checkbox" id="select-all"></th>
                 <th class="tengah">
                     NO
                 </th>
@@ -54,6 +60,7 @@
         <tbody>
             @forelse ($prodi as $d)
                 <tr>
+                    <td class="text-center"><input type="checkbox" name="selected[]" value="{{ $d->id ?? '-' }}"></td>
                     <td class="tengah">{{ $loop->iteration }}</td>
                     {{-- <td class="tengah">{{ $d->id_prodi }}</td> --}}
                     <td class="tengah">{{ $d->nama_prodi }}</td>
@@ -61,7 +68,7 @@
                         <!-- Tombol Edit -->
                         <a href="javascript:void(0)" class="btn btn-success btn-sm" data-toggle="modal"
                             data-target="#editModal-{{ $d->id }}"><i class="fa fa-edit"></i></a>
-
+                        {{-- 
                         <!-- Tombol Delete dengan SweetAlert -->
                         <button class="btn btn-danger btn-sm delete-btn" data-id="{{ $d->id }}">
                             <i class="fa fa-trash"></i>
@@ -72,7 +79,7 @@
                             method="POST" style="display: none;">
                             @csrf
                             @method('DELETE')
-                        </form>
+                        </form> --}}
 
                 </tr>
             @empty
@@ -113,7 +120,8 @@
                         </div> --}}
                         <div class="form-group">
                             Nama prodi:
-                            <input type="text" name="nama_prodi" id="" class="form-control" value="{{ old('nama_prodi') }}" required>
+                            <input type="text" name="nama_prodi" id="" class="form-control"
+                                value="{{ old('nama_prodi') }}" required>
                         </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
@@ -157,8 +165,8 @@
                             </div> --}}
                             <div class="form-group">
                                 Nama Prodi:
-                                <input type="text" name="nama_prodi" class="form-control"
-                                    value="{{ $d->nama_prodi }}" required>
+                                <input type="text" name="nama_prodi" class="form-control" value="{{ $d->nama_prodi }}"
+                                    required>
                             </div>
                     </div>
                     <div class="modal-footer">
@@ -190,7 +198,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus data yang dipilih?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('prodi.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')
@@ -205,7 +213,7 @@
             if (confirm("Apakah Anda yakin ingin menghapus SEMUA data?")) {
                 let form = document.createElement("form");
                 form.method = "POST";
-                form.action = "{{ route('jadwal.bulkDelete') }}";
+                form.action = "{{ route('prodi.bulkDelete') }}";
                 form.innerHTML = `
             @csrf
             @method('DELETE')
@@ -299,7 +307,7 @@
         // Menyimpan Data Terakhir ke localStorage
         @if (session('status') && session()->has('last_data'))
             const lastData = {
-                
+
                 nama_prodi: "{{ session('last_data')['nama_prodi'] }}"
             };
             localStorage.setItem('lastAddedProdi', JSON.stringify(lastData));
