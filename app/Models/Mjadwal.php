@@ -15,13 +15,11 @@ class MJadwal extends Model
         'hari',
         'jam_mulai',
         'jam_selesai',
-        'dosen_id',    // Perubahan dari id_dosen
+        'dosen_id',
         'kelas',
-        'ruangan_id',  // Perubahan dari id_ruangan
+        'ruangan_id',  
         'kode_matkul',
-        'prodi_id',    // Perubahan dari id_prodi
-        // 'mode_pembelajaran',
-        // 'sks',
+        'prodi_id', 
         'smt',
     ];
 

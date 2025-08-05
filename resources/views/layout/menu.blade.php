@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en" class="no-outlines">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,9 +8,7 @@
     <meta name="author" content="">
     <meta name="description" content="">
     <meta name="keywords" content="">
-
     <link rel="icon" href="favicon.png" type="image/png">
-
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700%7CMontserrat:400,500">
 
@@ -32,7 +29,6 @@
     <link rel="stylesheet" href="assets/css/fullcalendar.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     
-    
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    
@@ -47,40 +43,23 @@
     <!-- Sweet Alert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
 <body>
     <div class="wrapper">
         <header class="navbar navbar-fixed">
             <div class="navbar--header">
                 <a href="#" class="logo">
-                    <h3>Universitas Muhammadiyah Palangkaraya</h3>
+                    <h3>Fakultas Bisnis dan Informatika UMPR</h3>
                 </a>
             </div>
 
             <a href="#" class="navbar--btn" data-toggle="sidebar" title="Toggle Sidebar">
                 <i class="fa fa-bars"></i>
             </a>
-
-            <div class="navbar--nav ml-auto">
-                <ul class="nav">
-                    <li class="nav-item dropdown nav--user online">
-                        <a href="#" class="nav-link" data-toggle="dropdown">
-                            <span>Username</span>
-                            <i class="fa fa-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="profile.html"><i class="far fa-user"></i>Profile</a></li>
-                            <li><a href="#"><i class="fa fa-power-off"></i>Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
         </header>
-
         <aside class="sidebar" data-trigger="scrollbar">
             <div class="sidebar--nav">
                 <ul>
-                    <li>
+                    <li>    
                         <ul>
                             <li class="active">
                                 <a href="/">
@@ -100,12 +79,6 @@
                                     <span>Data Dosen</span>
                                 </a>
                             </li>
-                            {{-- <li>
-                        <a href="{{ route('kelas.index') }}">
-                           <i class="far fa-calendar-alt"></i>
-                           <span>Data Kelas</span>
-                        </a>
-                     </li> --}}
                             <li>
                                 <a href="{{ route('matkul.index') }}">
                                     <i class="far fa-calendar-alt"></i>
@@ -129,7 +102,6 @@
                 </ul>
             </div>
         </aside>
-
         <!-- Main Container Start -->
         <main class="main--container">
             <section class="main--content">
@@ -146,7 +118,6 @@
     </div>
 
     <!-- Scripts -->
-
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery-ui.min.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
@@ -164,7 +135,6 @@
     <script src="assets/js/ion.rangeSlider.min.js"></script>
     <script src="assets/js/datatables.min.js"></script>
     <script src="assets/js/main.js"></script>
-
     <script>
         $(document).ready(function() {
             // Inisialisasi DataTables
@@ -174,5 +144,4 @@
         });
     </script>
 </body>
-
 </html>

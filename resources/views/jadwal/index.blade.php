@@ -1,4 +1,3 @@
-{{-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> --}}
 @extends('layout.menu')
 @section('konten')
 
@@ -6,18 +5,14 @@
         .tengah {
             text-align: center;
         }
-
         table.dataTable {
             width: 100% !important;
-            /* Atur lebar tabel secara eksplisit */
             overflow: visible !important;
-            /* Pastikan tidak ada overflow */
         }
-
-        /* Hilangkan scroll */
         .dataTables_wrapper {
             overflow: visible !important;
         }
+
     </style>
 
     <h1 class="text-center my-3">Daftar Jadwal Mata Kuliah</h1>
@@ -102,7 +97,6 @@
                     <th class="text-center">Dosen Pengampu</th>
                     <th class="text-center">Kelas</th>
                     <th class="text-center">Ruangan</th>
-                    {{-- <th class="text-center">Mode</th> --}}
                     <th class="text-center">Aksi</th>
                 </tr>
             </thead>
@@ -121,23 +115,10 @@
                         <td class="text-center">{{ $d->dosen->nama_dosen ?? '-' }}</td>
                         <td class="text-center">{{ $d->kelas ?? '-' }}</td>
                         <td class="text-center">{{ $d->ruangan->nama_ruangan ?? '-' }}</td>
-                        {{-- <td class="text-center">{{ ucfirst($d->mode_pembelajaran) }}</td> --}}
                         <td class="text-center">
                             <!-- Tombol Edit -->
                             <a href="javascript:void(0)" class="btn btn-success btn-sm" data-toggle="modal"
                                 data-target="#editModal-{{ $d->id }}"><i class="fa fa-edit"></i></a>
-
-                            {{-- <!-- Tombol Delete -->
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="{{ $d->id }}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-    
-                        <!-- Form Delete -->
-                        <form id="delete-form-{{ $d->id }}" action="{{ route('jadwal.destroy', $d->id) }}"
-                            method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form> --}}
                         </td>
                     </tr>
                 @empty
@@ -148,8 +129,6 @@
             </tbody>
         </table>
     </div>
-
-
 
     <!-- Modal Tambah -->
     <div class="modal fade" id="tambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -162,7 +141,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -172,11 +150,9 @@
                             </ul>
                         </div>
                     @endif
-
                     <form action="{{ route('jadwal.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="debug" value="1">
-
                         <div class="form-group">
                             <label for="ruangan_id">Mata Kuliah:</label>
                             <select name="kode_matkul" id="kode_matkul" class="select2 form-control" required>
@@ -188,7 +164,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label for="hari">Hari:</label>
                             <select name="hari" id="hari" class="form-control" required>
@@ -199,19 +174,16 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label for="jam_mulai">Jam Mulai:</label>
                             <input type="time" name="jam_mulai" id="jam_mulai" class="form-control"
                                 value="{{ old('jam_mulai') }}" required>
                         </div>
-
                         <div class="form-group">
                             <label for="jam_selesai">Jam Selesai:</label>
                             <input type="time" name="jam_selesai" id="jam_selesai" class="form-control"
                                 value="{{ old('jam_selesai') }}" required>
                         </div>
-
                         <div class="form-group">
                             <label for="availability">Ketersediaan Ruangan:</label>
                             <div class="d-flex align-items-center">
@@ -221,15 +193,12 @@
                                     ada ruangan kosong.</span>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="ruangan_id">Ruangan:</label>
                             <select name="ruangan_id" id="ruangan_id-add" class="form-control" required>
                                 <option value="">-- Pilih Ruangan --</option>
                             </select>
                         </div>
-
-
                         <div class="form-group">
                             <label for="prodi_id">Prodi:</label>
                             <select name="prodi_id" id="prodi_id" class="form-control" required>
@@ -242,15 +211,7 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        {{-- <div class="form-group">
-                            SKS:
-                            <input type="text" name="sks" class="form-control" value="{{ old('sks') }}"
-                                required>
-                        </div> --}}
-
                         <p id="dosen-alert" style="display:none;"></p>
-
                         <div class="form-group">
                             Dosen:
                             <select name="dosen_id" id="dosen_id" class="select2 form-control">
@@ -263,30 +224,12 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="form-group">
                             Kelas:
                             <input type="text" name="kelas" class="form-control" value="{{ old('kelas') }}">
                         </div>
-
-                        {{-- <div class="form-group">
-                            Mode Pembelajaran:
-                            <select name="mode_pembelajaran" class="form-control" required>
-                                <option value="">-- Pilih Mode --</option>
-                                <option value="luring" {{ old('mode_pembelajaran') == 'luring' ? 'selected' : '' }}>Luring
-                                </option>
-                                <option value="daring" {{ old('mode_pembelajaran') == 'daring' ? 'selected' : '' }}>Daring
-                                </option>
-                                <option value="luring/daring"
-                                    {{ old('mode_pembelajaran') == 'luring/daring' ? 'selected' : '' }}>Luring/Daring
-                                </option>
-                            </select>
-                        </div> --}}
-
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </form>
-
-
                 </div>
             </div>
         </div>
@@ -355,15 +298,6 @@
                                 <input type="time" name="jam_selesai" class="form-control"
                                     value="{{ $d->jam_selesai }}" required>
                             </div>
-
-
-                            {{-- <div class="form-group">
-                            <label for="availability">Ketersediaan Ruangan:</label>
-                            <div class="d-flex align-items-center">
-                                <span id="availability-status" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
-                                <span id="no-availability-status" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
-                            </div>
-                        </div> --}}
                             <div class="form-group">
                                 <label for="ruangan_id">Ruangan:</label>
                                 <select name="ruangan_id" id="ruangan_id-add" class="form-control" required>
@@ -375,22 +309,6 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <!-- Form Edit (Manual) -->
-                            {{-- <div class="form-group">
-                            <button type="button" id="check-room-btn-edit" class="btn btn-secondary mt-2">Cek Ketersediaan Ruangan</button>
-                            <label for="availability">Ketersediaan Ruangan:</label>
-                            <div class="d-flex align-items-center">
-                                <span id="availability-status-edit" class="ml-3 text-success" style="display: none;">Ruangan tersedia.</span>
-                                <span id="no-availability-status-edit" class="ml-3 text-danger" style="display: none;">Tidak ada ruangan kosong.</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="ruangan_id">Ruangan:</label>
-                            <select name="ruangan_id" id="ruangan_id-edit" class="form-control" required>
-                                <option value="">-- Pilih Ruangan --</option>
-                            </select>
-                        </div> --}}
-
                             <div class="form-group">
                                 <label for="prodi_id">Prodi:</label>
                                 <select name="prodi_id" id="prodi_id" class="form-control" required>
@@ -403,7 +321,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
                             <div class="form-group">
                                 Dosen:
                                 <select name="dosen_id" class="form-control">
@@ -419,22 +336,7 @@
                             <div class="form-group">
                                 Kelas:
                                 <input type="text" name="kelas" class="form-control" value="{{ $d->kelas }}">
-
                             </div>
-
-                            {{-- <div class="form-group">
-                        Mode Pembelajaran:
-                        <select name="mode_pembelajaran" class="form-control" required>
-                            <option value="">-- Pilih Mode --</option>
-                            <option value="luring" {{ $d->mode_pembelajaran == 'luring' ? 'selected' : '' }}>
-                                Luring</option>
-                            <option value="daring" {{ $d->mode_pembelajaran == 'daring' ? 'selected' : '' }}>
-                                Daring</option>
-                            <option value="luring/daring"
-                                {{ $d->mode_pembelajaran == 'luring/daring' ? 'selected' : '' }}>Luring/Daring
-                            </option>
-                        </select>
-                    </div> --}}
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </form>
                     </div>
@@ -442,8 +344,6 @@
             </div>
         </div>
     @endforeach
-
-
 
     <script>
         $(document).ready(function() {
@@ -547,56 +447,6 @@
             }
         });
     </script>
-
-
-    {{-- script  check dosen
-    <!-- Tambahkan validasi ketersediaan dosen -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let elements = ["jam_mulai", "jam_selesai", "hari", "dosen_id"];
-            elements.forEach(id => {
-                document.getElementById(id).addEventListener("change", checkDosenAvailability);
-            });
-
-            function checkDosenAvailability() {
-                let hari = document.getElementById("hari").value;
-                let jamMulai = document.getElementById("jam_mulai").value;
-                let jamSelesai = document.getElementById("jam_selesai").value;
-                let dosenId = document.getElementById("dosen_id").value;
-
-                if (!hari || !jamMulai || !jamSelesai || !dosenId) {
-                    return;
-                }
-
-                fetch("{{ route('jadwal.checkDosen') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        },
-                        body: JSON.stringify({
-                            hari: hari,
-                            jam_mulai: jamMulai,
-                            jam_selesai: jamSelesai,
-                            dosen_id: dosenId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        let alertBox = document.getElementById("dosen-alert");
-                        alertBox.style.display = "block";
-                        if (data.available) {
-                            alertBox.style.color = "green";
-                            alertBox.innerText = "✅ Dosen tersedia.";
-                        } else {
-                            alertBox.style.color = "red";
-                            alertBox.innerText = "❌ Dosen sudah memiliki jadwal pada waktu tersebut.";
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
-            }
-        });
-    </script> --}}
 
     {{-- check dosen --}}
     <script>
@@ -723,7 +573,6 @@
                 jamSelesaiInput.value =
                     (jamSelesai < 10 ? "0" : "") + jamSelesai + ":" + (menitSelesai < 10 ? "0" : "") +
                     menitSelesai;
-
                 // Panggil checkAvailability setelah jam selesai diupdate otomatis
                 checkAvailability();
             });
@@ -732,8 +581,6 @@
                 element.addEventListener('input', checkAvailability);
             });
         });
-
-
 
         document.addEventListener('DOMContentLoaded', function() {
             const deleteButtons = document.querySelectorAll('.delete-btn');
@@ -759,13 +606,11 @@
             });
         });
 
-        // Menampilkan Data Terakhir di Halaman
         document.addEventListener('DOMContentLoaded', function() {
             const lastData = JSON.parse(localStorage.getItem('lastAddedJadwal'));
 
             if (lastData) {
                 console.log('Data terakhir ditemukan:', lastData);
-
                 const lastDataContainer = document.getElementById('last-data-container');
                 const lastHari = document.getElementById('last-hari');
                 const lastJamMulai = document.getElementById('last-jam-mulai');
@@ -779,7 +624,6 @@
                 const lastKelas = document.getElementById('last-kelas');
                 const lastNamaRuangan = document.getElementById('last-nama-ruangan');
 
-                // Set data ke elemen HTML
                 lastHari.textContent = lastData.hari;
                 lastJamMulai.textContent = lastData.jam_mulai;
                 lastJamSelesai.textContent = lastData.jam_selesai;
@@ -797,7 +641,6 @@
                 console.log('Data tidak ditemukan di localStorage.');
             }
 
-            // Tombol "X" untuk menutup pemberitahuan
             const closeNotificationButton = document.getElementById('close-notification');
             if (closeNotificationButton) {
                 closeNotificationButton.addEventListener('click', function() {
@@ -808,10 +651,6 @@
             }
         });
 
-
-
-        // Menyimpan Data Terakhir ke localStorage
-        // Simpan data jadwal ke localStorage setelah berhasil menambah atau memperbarui data
         @if (session('status') && session()->has('last_data'))
             const lastJadwal = {
                 hari: "{{ session('last_data')['hari'] }}",

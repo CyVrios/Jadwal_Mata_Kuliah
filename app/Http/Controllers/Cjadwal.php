@@ -79,30 +79,6 @@ class Cjadwal extends Controller
     }
 
 
-    public function checkAvailableDosen(Request $request)
-    {
-        $hari = $request->input('hari');
-        $jamMulai = $request->input('jam_mulai');
-        $jamSelesai = $request->input('jam_selesai');
-
-        if (!$hari || !$jamMulai || !$jamSelesai) {
-            return response()->json(['error' => 'Parameter tidak lengkap'], 400);
-        }
-
-        // Ambil daftar dosen yang sudah terjadwal di waktu yang sama
-        $occupiedDosen = Mjadwal::where('hari', $hari)
-            ->where(function ($query) use ($jamMulai, $jamSelesai) {
-                $query->where('jam_mulai', '<', $jamSelesai)
-                    ->where('jam_selesai', '>', $jamMulai);
-            })
-            ->pluck('dosen_id');
-
-        // Ambil daftar dosen yang tidak sedang mengajar
-        $availableDosen = Mdosen::whereNotIn('id', $occupiedDosen)->get();
-
-        return response()->json($availableDosen);
-    }
-
     public function export(Request $request)
     {
         $smt = $request->input('smt');
@@ -116,14 +92,7 @@ class Cjadwal extends Controller
      */
     public function create()
     {
-        // Mengambil data dari tabel terkait untuk dropdown
-        $dosen = Mdosen::all();
-        $kelas = Mkelas::all();
-        $ruangan = Mruangan::all();
-        $matkul = Mmatkul::all();
-        $prodi = Mprodi::all();
-
-        return view('jadwal.create', compact('dosen', 'ruangan', 'matkul', 'prodi'));
+        //
     }
 
     /**
@@ -243,8 +212,6 @@ class Cjadwal extends Controller
             'ruangan_id' => 'nullable|exists:ruangan,id',
             'prodi_id' => 'required|exists:prodi,id',
             'kode_matkul' => 'required|exists:matkul,id',
-            // 'sks' => 'required',
-            // 'mode_pembelajaran' => 'required|in:luring,daring,luring/daring',
         ]);
 
         // Hanya lakukan pengecekan jika ada ruangan yang dipilih
