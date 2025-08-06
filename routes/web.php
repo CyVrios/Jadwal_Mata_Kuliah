@@ -15,6 +15,9 @@ Route::post('/matkul/import', [Cimport::class, 'import'])->name('matkul.import')
 Route::get('/jadwal/export', [Cjadwal::class, 'export'])->name('jadwal.export');
 Route::get('/check-available-rooms', [Cjadwal::class, 'checkAvailableRooms']);
 Route::post('/jadwal/checkDosen', [Cjadwal::class, 'checkDosen'])->name('jadwal.checkDosen');
+Route::post('/jadwal/check-kelas-semester', [Cjadwal::class, 'checkKelasSemester'])->name('jadwal.checkKelasSemester');
+
+
 
 Route::delete('/jadwal/bulk-delete', [Cjadwal::class, 'bulkDelete'])->name('jadwal.bulkDelete');
 Route::delete('/matkul/bulk-delete', [Cmatkul::class, 'bulkDelete'])->name('matkul.bulkDelete');

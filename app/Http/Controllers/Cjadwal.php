@@ -124,6 +124,23 @@ class Cjadwal extends Controller
             return redirect()->back()->withErrors(['dosen_id' => 'Dosen sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
 
+        // Cek tabrakan jadwal untuk kombinasi kelas + semester (dari kode_matkul)
+        $semester = \App\Models\Mmatkul::find($request->kode_matkul)?->smt; // Ambil semester dari matkul
+
+        $cekJadwalKelasSemester = Mjadwal::where('hari', $request->hari)
+            ->where('kelas', $request->kelas)
+            ->whereHas('matkul', function ($query) use ($semester) {
+                $query->where('smt', $semester);
+            })
+            ->where(function ($query) use ($request) {
+                $query->where('jam_mulai', '<', $request->jam_selesai)
+                    ->where('jam_selesai', '>', $request->jam_mulai);
+            })
+            ->exists();
+
+        if ($cekJadwalKelasSemester) {
+            return redirect()->back()->withErrors(['kelas' => 'Kelas dengan semester tersebut sudah memiliki jadwal pada waktu ini.'])->withInput();
+        }
 
         // Simpan jadwal ke database
         $jadwal = Mjadwal::create($validated);
@@ -247,6 +264,31 @@ class Cjadwal extends Controller
         if ($cekJadwalDosen) {
             return redirect()->back()->withErrors(['dosen_id' => 'Dosen sudah memiliki jadwal pada waktu tersebut.'])->withInput();
         }
+        // Ambil semester dari matkul
+        $matkul = Mmatkul::find($validated['kode_matkul']);
+        if (!$matkul) {
+            return redirect()->back()->withErrors(['kode_matkul' => 'Mata kuliah tidak ditemukan.'])->withInput();
+        }
+
+        $semester = $matkul->smt;
+        $kelas = $validated['kelas'];
+
+        // Cek apakah kelas dan semester sudah memiliki jadwal di waktu tersebut
+        $cekJadwalKelasSmt = Mjadwal::where('hari', $validated['hari'])
+            ->where('kelas', $kelas)
+            ->whereHas('matkul', function ($q) use ($semester) {
+                $q->where('smt', $semester);
+            })
+            ->where('id', '!=', $id)
+            ->where(function ($query) use ($validated) {
+                $query->where('jam_mulai', '<', $validated['jam_selesai'])
+                    ->where('jam_selesai', '>', $validated['jam_mulai']);
+            })
+            ->exists();
+
+        if ($cekJadwalKelasSmt) {
+            return redirect()->back()->withErrors(['kelas' => 'Kelas dan semester ini sudah memiliki jadwal pada waktu tersebut.'])->withInput();
+        }
 
         // Update data
         $jadwal->update($validated);
@@ -276,15 +318,4 @@ class Cjadwal extends Controller
 
         return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
     }
-
-    /**
-     * Menghapus jadwal tertentu dari database
-     */
-    // public function destroy($id)
-    // {
-    //     $jadwal = Mjadwal::findOrFail($id);
-    //     $jadwal->delete();
-
-    //     return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil dihapus.');
-    // }
 }

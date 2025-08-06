@@ -5,14 +5,15 @@
         .tengah {
             text-align: center;
         }
+
         table.dataTable {
             width: 100% !important;
             overflow: visible !important;
         }
+
         .dataTables_wrapper {
             overflow: visible !important;
         }
-
     </style>
 
     <h1 class="text-center my-3">Daftar Jadwal Mata Kuliah</h1>
@@ -140,6 +141,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <div id="kelas-alert" class="mt-1"></div>
+
                 <div class="modal-body">
                     @if ($errors->any())
                         <div class="alert alert-danger">
@@ -159,7 +162,8 @@
                                 <option value="">-- Pilih Mata Kuliah --</option>
                                 @foreach ($matkul as $matkuls)
                                     <option value="{{ $matkuls->id }}" data-sks="{{ $matkuls->sks }}">
-                                        {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }} - semester {{ $matkuls->smt }} - sks {{ $matkuls->sks }}
+                                        {{ $matkuls->kode_matkul }} - {{ $matkuls->nama_matkul }} - semester
+                                        {{ $matkuls->smt }} - sks {{ $matkuls->sks }}
                                     </option>
                                 @endforeach
                             </select>
@@ -382,7 +386,7 @@
                     width: '100%',
                     placeholder: "-- Pilih Mata Kuliah --",
                     allowClear: true,
-                    dropdownParent: $("#tambah") 
+                    dropdownParent: $("#tambah")
                 });
             });
 
@@ -395,7 +399,7 @@
                     width: '100%',
                     placeholder: "-- Pilih Dosen --",
                     allowClear: true,
-                    dropdownParent: $("#tambah") 
+                    dropdownParent: $("#tambah")
                 });
             });
 
@@ -447,6 +451,55 @@
             }
         });
     </script>
+
+    {{-- check kelas + semester (via kode_matkul) --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const triggerElements = ["jam_mulai", "jam_selesai", "hari", "kelas", "kode_matkul"];
+        triggerElements.forEach(id => {
+            document.getElementById(id).addEventListener("change", checkKelasSemesterAvailability);
+        });
+
+        function checkKelasSemesterAvailability() {
+            let hari = document.getElementById("hari").value;
+            let jamMulai = document.getElementById("jam_mulai").value;
+            let jamSelesai = document.getElementById("jam_selesai").value;
+            let kelas = document.getElementById("kelas").value;
+            let kodeMatkul = document.getElementById("kode_matkul").value;
+
+            if (!hari || !jamMulai || !jamSelesai || !kelas || !kodeMatkul) {
+                return;
+            }
+
+            fetch("{{ route('jadwal.checkKelasSemester') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    hari: hari,
+                    jam_mulai: jamMulai,
+                    jam_selesai: jamSelesai,
+                    kelas: kelas,
+                    kode_matkul: kodeMatkul
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let alertBox = document.getElementById("kelas-alert");
+                if (data.available) {
+                    alertBox.style.color = "green";
+                    alertBox.innerText = "Jadwal kelas dan semester tersedia.";
+                } else {
+                    alertBox.style.color = "red";
+                    alertBox.innerText = "Kelas dan semester sudah memiliki jadwal pada waktu tersebut.";
+                }
+            });
+        }
+    });
+</script>
+
 
     {{-- check dosen --}}
     <script>
