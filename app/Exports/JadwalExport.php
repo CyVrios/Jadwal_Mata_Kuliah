@@ -23,49 +23,46 @@ class JadwalExport implements FromCollection, WithHeadings
      * Mengambil data yang akan diekspor
      */
     public function collection()
-    {
-        $query = Mjadwal::with(['matkul', 'dosen', 'ruangan', 'prodi']);
+{
+    $query = Mjadwal::with(['prodi', 'matkul', 'dosen', 'ruangan']);
 
-        // Filter berdasarkan smt dari relasi matkul
-        if (!empty($this->smt)) {
-            $query->whereHas('matkul', function ($q) {
-                $q->where('smt', $this->smt);
-            });
-        }
-
-        // Filter berdasarkan prodi dari relasi prodi
-        if (!empty($this->prodi)) {
-            $query->where('prodi_id', $this->prodi);
-        }
-
-        // Filter berdasarkan prodi
-        // if (!empty($this->prodi)) {
-        //     $query->whereHas('prodi', function ($q) {
-        //         $q->where('id_prodi', $this->prodi);
-        //     });
-        // }
-
-        $jadwal = $query->get();
-
-        return $jadwal->map(function ($jadwal) {
-            return [
-                'hari' => $jadwal->hari,
-                'jam_mulai' => $jadwal->jam_mulai,
-                'jam_selesai' => $jadwal->jam_selesai,
-                'kode_matkul' => $jadwal->matkul->kode_matkul ?? '-',
-                'nama_matkul' => $jadwal->matkul->nama_matkul ?? '-',
-                'smt' => $jadwal->matkul->smt ?? '-', // Ambil smt dari relasi matkul
-                'sks' => $jadwal->matkul->sks ?? '-',
-                'nama_dosen' => $jadwal->dosen->nama_dosen ?? '-',
-                'kelas' => $jadwal->kelas ?? '-',
-                'nama_ruangan' => $jadwal->ruangan->nama_ruangan ?? '-',
-                'prodi' => $jadwal->prodi->nama_prodi ?? '-', // Ambil nama prodi dari relasi prodi
-            ];
+    // Filter berdasarkan smt dari relasi matkul
+    if (!empty($this->smt)) {
+        $query->whereHas('matkul', function ($q) {
+            $q->where('smt', $this->smt);
         });
     }
 
+    // Filter berdasarkan prodi
+    if (!empty($this->prodi)) {
+        $query->where('prodi_id', $this->prodi);
+    }
+
+    $jadwal = $query
+        ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+        ->orderBy('jam_mulai', 'asc')
+        ->get();
+
+    return $jadwal->map(function ($jadwal) {
+        return [
+            'hari' => $jadwal->hari ?? '-',
+            'jam_mulai' => $jadwal->jam_mulai ?? '-',
+            'jam_selesai' => $jadwal->jam_selesai ?? '-',
+            'kode_matkul' => $jadwal->matkul->kode_matkul ?? '-',
+            'nama_matkul' => $jadwal->matkul->nama_matkul ?? '-',
+            'smt' => $jadwal->matkul->smt ?? '-',
+            'sks' => $jadwal->matkul->sks ?? '-',
+            'nama_dosen' => $jadwal->dosen->nama_dosen ?? '-',
+            'kelas' => $jadwal->kelas ?? '-',
+            'nama_ruangan' => $jadwal->ruangan->nama_ruangan ?? '-',
+            'prodi' => $jadwal->prodi->nama_prodi ?? '-',
+        ];
+    });
+
+}
+
     /**
-     * Tambahkan heading untuk kolom Excel
+     * Mendefinisikan heading untuk file Excel
      */
     public function headings(): array
     {
@@ -73,14 +70,14 @@ class JadwalExport implements FromCollection, WithHeadings
             'Hari',
             'Jam Mulai',
             'Jam Selesai',
-            'Kode Mata Kuliah',
-            'Nama Mata Kuliah',
-            'Semester', // Heading untuk kolom smt
+            'Kode Matkul',
+            'Nama Matkul',
+            'Semester',
             'SKS',
-            'Dosen Pengampu',
+            'Nama Dosen',
             'Kelas',
-            'Ruangan',
-            'Prodi', // Heading untuk kolom prodi
+            'Nama Ruangan',
+            'Prodi',
         ];
     }
 }

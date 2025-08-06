@@ -20,6 +20,11 @@ class Cjadwal extends Controller
      */
     public function index(Request $request)
     {
+        $jadwal = Mjadwal::with(['prodi', 'matkul', 'dosen', 'ruangan'])
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+            ->orderBy('jam_mulai', 'asc')
+            ->get();
+
         // Mengambil data semester dari tabel matkul, tetapi hanya jika ada data di tabel jadwal
         $semesters = Mmatkul::whereHas('jadwal') // Pastikan hanya semester dengan jadwal
             ->select('smt')
