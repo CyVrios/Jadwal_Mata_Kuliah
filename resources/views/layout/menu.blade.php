@@ -34,7 +34,7 @@
    
     <!-- Select 2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
@@ -112,7 +112,9 @@
                 </div>
             </section>
             <footer class="main--footer main--footer-light">
+                <div class="">
                 Universitas Muhammadiyah Palangkaraya 2024
+            </div>
             </footer>
         </main>
     </div>

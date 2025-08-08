@@ -26,6 +26,12 @@
         Export to Excel
     </a>
 
+    <!-- Tombol -->
+    <button class="btn btn-primary" data-toggle="modal" data-target="#modalCekKetersediaan">
+        🔍 Cek Slot Kosong
+    </button>
+
+
     <!-- Tempat Menampilkan Data Terakhir -->
     <div id="last-data-container" class="alert alert-info alert-dismissible fade show" style="display: none;">
         <button type="button" class="close" aria-label="Close" id="close-notification">
@@ -104,7 +110,8 @@
             <tbody>
                 @forelse ($jadwal as $d)
                     <tr>
-                        <td class="text-center"><input type="checkbox" name="selected[]" value="{{ $d->id ?? '-' }}"></td>
+                        <td class="text-center"><input type="checkbox" name="selected[]" value="{{ $d->id ?? '-' }}">
+                        </td>
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td class="text-center">{{ $d->hari }}</td>
                         <td class="text-center">{{ $d->jam_mulai }} - {{ $d->jam_selesai }}</td>
@@ -130,6 +137,101 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalCekKetersediaan" tabindex="-1" role="dialog" aria-labelledby="modalCekLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <form id="formCekSlot">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalCekLabel">Cek Slot Kosong</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <!-- Pilih Hari -->
+                        <div class="form-group">
+                            <label for="hari">Pilih Hari:</label>
+                            <select name="hari" id="hari" class="form-control" required>
+                                <option value="">-- Pilih Hari --</option>
+                                <option value="Senin">Senin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Kamis">Kamis</option>
+                                <option value="Jumat">Jumat</option>
+                                <option value="Sabtu">Sabtu</option>
+                            </select>
+                        </div>
+
+                        <!-- Hasil Slot Kosong -->
+                        <div class="row">
+                            <!-- Jam Kosong -->
+                            <div class="col-md-4">
+                                <h6>Jam Kosong</h6>
+                                <div class="table-responsive border rounded p-2">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Jam Mulai</th>
+                                                <th>Jam Selesai</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="jamKosongTable">
+                                            <!-- Diisi dari JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Ruangan Kosong -->
+                            <div class="col-md-4">
+                                <h6>Ruangan Kosong</h6>
+                                <div class="table-responsive border rounded p-2">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Ruangan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ruanganKosongTable">
+                                            <!-- Diisi dari JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Dosen Kosong -->
+                            <div class="col-md-4">
+                                <h6>Dosen Kosong</h6>
+                                <div class="table-responsive border rounded p-2">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Dosen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dosenKosongTable">
+                                            <!-- Diisi dari JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Cek Sekarang</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Modal Tambah -->
     <div class="modal fade" id="tambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -453,52 +555,53 @@
     </script>
 
     {{-- check kelas + semester (via kode_matkul) --}}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const triggerElements = ["jam_mulai", "jam_selesai", "hari", "kelas", "kode_matkul"];
-        triggerElements.forEach(id => {
-            document.getElementById(id).addEventListener("change", checkKelasSemesterAvailability);
-        });
-
-        function checkKelasSemesterAvailability() {
-            let hari = document.getElementById("hari").value;
-            let jamMulai = document.getElementById("jam_mulai").value;
-            let jamSelesai = document.getElementById("jam_selesai").value;
-            let kelas = document.getElementById("kelas").value;
-            let kodeMatkul = document.getElementById("kode_matkul").value;
-
-            if (!hari || !jamMulai || !jamSelesai || !kelas || !kodeMatkul) {
-                return;
-            }
-
-            fetch("{{ route('jadwal.checkKelasSemester') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    hari: hari,
-                    jam_mulai: jamMulai,
-                    jam_selesai: jamSelesai,
-                    kelas: kelas,
-                    kode_matkul: kodeMatkul
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                let alertBox = document.getElementById("kelas-alert");
-                if (data.available) {
-                    alertBox.style.color = "green";
-                    alertBox.innerText = "Jadwal kelas dan semester tersedia.";
-                } else {
-                    alertBox.style.color = "red";
-                    alertBox.innerText = "Kelas dan semester sudah memiliki jadwal pada waktu tersebut.";
-                }
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const triggerElements = ["jam_mulai", "jam_selesai", "hari", "kelas", "kode_matkul"];
+            triggerElements.forEach(id => {
+                document.getElementById(id).addEventListener("change", checkKelasSemesterAvailability);
             });
-        }
-    });
-</script>
+
+            function checkKelasSemesterAvailability() {
+                let hari = document.getElementById("hari").value;
+                let jamMulai = document.getElementById("jam_mulai").value;
+                let jamSelesai = document.getElementById("jam_selesai").value;
+                let kelas = document.getElementById("kelas").value;
+                let kodeMatkul = document.getElementById("kode_matkul").value;
+
+                if (!hari || !jamMulai || !jamSelesai || !kelas || !kodeMatkul) {
+                    return;
+                }
+
+                fetch("{{ route('jadwal.checkKelasSemester') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            hari: hari,
+                            jam_mulai: jamMulai,
+                            jam_selesai: jamSelesai,
+                            kelas: kelas,
+                            kode_matkul: kodeMatkul
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        let alertBox = document.getElementById("kelas-alert");
+                        if (data.available) {
+                            alertBox.style.color = "green";
+                            alertBox.innerText = "Jadwal kelas dan semester tersedia.";
+                        } else {
+                            alertBox.style.color = "red";
+                            alertBox.innerText =
+                                "Kelas dan semester sudah memiliki jadwal pada waktu tersebut.";
+                        }
+                    });
+            }
+        });
+    </script>
 
 
     {{-- check dosen --}}
@@ -546,6 +649,83 @@
             }
         });
     </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#formCekSlot').on('submit', function(e) {
+                e.preventDefault();
+
+                let hari = $('#hari').val();
+
+                if (!hari) {
+                    alert("Silakan pilih hari terlebih dahulu!");
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('jadwal.cekSlotKosong') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        hari: hari
+                    },
+                    success: function(res) {
+                        if (res.hasil && Array.isArray(res.hasil) && res.hasil.length > 0) {
+                            // Kosongkan dulu isi tabel
+                            $('#jamKosongTable').empty();
+                            $('#ruanganKosongTable').empty();
+                            $('#dosenKosongTable').empty();
+
+                            res.hasil.forEach(slot => {
+                                // Tambah baris untuk jam kosong
+                                $('#jamKosongTable').append(`
+                <tr>
+                    <td>${slot.jam_mulai}</td>
+                    <td>${slot.jam_selesai}</td>
+                </tr>
+            `);
+
+                                // Tambah ruangan kosong (dalam 1 row, bisa banyak)
+                                if (slot.ruangan_kosong.length > 0) {
+                                    slot.ruangan_kosong.forEach(nama => {
+                                        $('#ruanganKosongTable').append(
+                                            `<tr><td>${nama}</td></tr>`);
+                                    });
+                                } else {
+                                    $('#ruanganKosongTable').append(
+                                        '<tr><td>-</td></tr>');
+                                }
+
+                                // Tambah dosen kosong
+                                if (slot.dosen_kosong.length > 0) {
+                                    slot.dosen_kosong.forEach(nama => {
+                                        $('#dosenKosongTable').append(
+                                            `<tr><td>${nama}</td></tr>`);
+                                    });
+                                } else {
+                                    $('#dosenKosongTable').append(
+                                    '<tr><td>-</td></tr>');
+                                }
+                            });
+                        } else {
+                            // Tidak ada data
+                            $('#jamKosongTable').html(
+                                '<tr><td colspan="2">Tidak ada data.</td></tr>');
+                            $('#ruanganKosongTable').html('<tr><td>Tidak ada data.</td></tr>');
+                            $('#dosenKosongTable').html('<tr><td>Tidak ada data.</td></tr>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        alert("Terjadi kesalahan saat memproses permintaan.");
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
 
     {{-- script check ruangan --}}
     <script>
@@ -658,6 +838,8 @@
                 });
             });
         });
+
+
 
         document.addEventListener('DOMContentLoaded', function() {
             const lastData = JSON.parse(localStorage.getItem('lastAddedJadwal'));

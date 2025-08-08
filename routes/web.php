@@ -16,6 +16,9 @@ Route::get('/jadwal/export', [Cjadwal::class, 'export'])->name('jadwal.export');
 Route::get('/check-available-rooms', [Cjadwal::class, 'checkAvailableRooms']);
 Route::post('/jadwal/checkDosen', [Cjadwal::class, 'checkDosen'])->name('jadwal.checkDosen');
 Route::post('/jadwal/check-kelas-semester', [Cjadwal::class, 'checkKelasSemester'])->name('jadwal.checkKelasSemester');
+Route::post('/jadwal/cek-slot', [Cjadwal::class, 'cekSlotKosong'])->name('jadwal.cekSlotKosong');
+Route::post('/jadwal/cek-slot-kosong', [Cjadwal::class, 'cekSlotKosong'])->name('jadwal.cekSlotKosong');
+
 
 
 

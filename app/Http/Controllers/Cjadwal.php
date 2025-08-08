@@ -12,6 +12,7 @@ use App\Models\Mprodi;
 use App\Exports\JadwalExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class Cjadwal extends Controller
 {
@@ -305,6 +306,57 @@ class Cjadwal extends Controller
         ];
 
         return redirect()->route('jadwal.index')->with(compact('status'));
+    }
+
+    public function cekSlotKosong(Request $request)
+    {
+        $hari = $request->hari;
+
+        $jamStart = Carbon::createFromTime(7, 0); // 07:00
+        $jamEnd = Carbon::createFromTime(15, 0); // 15:00
+
+        $slotWaktu = [];
+        while ($jamStart->lt($jamEnd)) {
+            $next = $jamStart->copy()->addMinutes(45);
+            $slotWaktu[] = [
+                'jam_mulai' => $jamStart->format('H:i'),
+                'jam_selesai' => $next->format('H:i')
+            ];
+            $jamStart = $next;
+        }
+
+        $jadwalHariIni = Mjadwal::where('hari', $hari)->get();
+
+        $hasil = [];
+
+        foreach ($slotWaktu as $slot) {
+            $jamMulai = $slot['jam_mulai'];
+            $jamSelesai = $slot['jam_selesai'];
+
+            // Ambil jadwal yang bentrok dengan slot saat ini
+            $jadwalTerpakai = $jadwalHariIni->filter(function ($j) use ($jamMulai, $jamSelesai) {
+                return !(
+                    $j->jam_selesai <= $jamMulai || $j->jam_mulai >= $jamSelesai
+                );
+            });
+
+            // Ambil ID dosen & ruangan yang sedang dipakai pada slot ini
+            $ruanganTerpakai = $jadwalTerpakai->pluck('ruangan_id')->unique()->values();
+            $dosenTerpakai = $jadwalTerpakai->pluck('dosen_id')->unique()->values();
+
+            // Ambil ruangan & dosen yang TIDAK dipakai di slot ini
+            $ruanganKosong = Mruangan::whereNotIn('id', $ruanganTerpakai)->get();
+            $dosenKosong = Mdosen::whereNotIn('id', $dosenTerpakai)->get();
+
+            $hasil[] = [
+                'jam_mulai' => $jamMulai,
+                'jam_selesai' => $jamSelesai,
+                'ruangan_kosong' => $ruanganKosong->pluck('nama_ruangan'),
+                'dosen_kosong' => $dosenKosong->pluck('nama_dosen')
+            ];
+        }
+
+        return response()->json(['hasil' => $hasil]);
     }
 
     // method untuk delete semua/terpilih
