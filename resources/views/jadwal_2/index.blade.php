@@ -9,49 +9,65 @@
     </div>
 
     <!-- Tabel -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Hari</th>
-                <th>Tanggal</th>
-                <th>Pukul</th>
-                <th>Mata Kuliah</th>
-                <th>SKS</th>
-                <th>Ruang</th>
-                <th>Dosen Pengampu</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php $no = 1; @endphp
-            @foreach ($jadwalGrouped as $hari => $jamGroups)
-                @php $hariRowspan = $jamGroups->count(); $firstHariRow = true; @endphp
-                @foreach ($jamGroups as $jam => $items)
-                    @php
-                        $tanggalList = $items->pluck('tanggal')->unique()->sort();
-                        $firstItem = $items->first();
-                    @endphp
-                    <tr>
-                        @if ($firstHariRow)
-                            <td rowspan="{{ $hariRowspan }}">{{ $no++ }}</td>
-                            <td rowspan="{{ $hariRowspan }}">{{ $hari }}</td>
-                            @php $firstHariRow = false; @endphp
-                        @endif
-                        <td>
-                            @foreach ($tanggalList as $tgl)
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Hari</th>
+            <th>Tanggal</th>
+            <th>Pukul</th>
+            <th>Mata Kuliah</th>
+            <th>SKS</th>
+            <th>Ruang</th>
+            <th>Dosen Pengampu</th>
+        </tr>
+    </thead>
+    <tbody>
+        @php $no = 1; @endphp
+        @foreach ($jadwalGrouped as $hari => $jamGroups)
+            @php
+                // Total baris untuk hari ini
+                $hariRowspan = $jamGroups->count();
+                // Ambil semua tanggal unik untuk hari ini
+                $tanggalListHari = $jamGroups->flatten()->pluck('tanggal')->unique()->sort();
+                $firstHariRow = true;
+            @endphp
+
+            @foreach ($jamGroups as $jam => $items)
+                @php
+                    $firstItem = $items->first();
+                @endphp
+                <tr>
+                    @if ($firstHariRow)
+                        {{-- No --}}
+                        <td rowspan="{{ $hariRowspan }}">{{ $no++ }}</td>
+                        {{-- Hari --}}
+                        <td rowspan="{{ $hariRowspan }}">{{ $hari }}</td>
+                        {{-- Tanggal (merge sejajar no & hari) --}}
+                        <td rowspan="{{ $hariRowspan }}">
+                            @foreach ($tanggalListHari as $tgl)
                                 {{ \Carbon\Carbon::parse($tgl)->translatedFormat('d M Y') }}<br>
                             @endforeach
                         </td>
-                        <td>{{ $firstItem->jam_mulai }} - {{ $firstItem->jam_selesai }}</td>
-                        <td>{{ $firstItem->matkul->nama_matkul ?? '-' }}</td>
-                        <td>{{ $firstItem->matkul->sks ?? '-' }}</td>
-                        <td>{{ $firstItem->ruangan->nama_ruangan ?? '-' }}</td>
-                        <td>{{ $firstItem->dosen->nama_dosen ?? '-' }}</td>
-                    </tr>
-                @endforeach
+                        @php $firstHariRow = false; @endphp
+                    @endif
+
+                    {{-- Jam --}}
+                    <td>{{ $firstItem->jam_mulai }} - {{ $firstItem->jam_selesai }}</td>
+                    {{-- Mata Kuliah --}}
+                    <td>{{ $firstItem->matkul->nama_matkul ?? '-' }}</td>
+                    {{-- SKS --}}
+                    <td>{{ $firstItem->matkul->sks ?? '-' }}</td>
+                    {{-- Ruang --}}
+                    <td>{{ $firstItem->ruangan->nama_ruangan ?? '-' }}</td>
+                    {{-- Dosen --}}
+                    <td>{{ $firstItem->dosen->nama_dosen ?? '-' }}</td>
+                </tr>
             @endforeach
-        </tbody>
-    </table>
+        @endforeach
+    </tbody>
+</table>
+
 
     <!-- Modal Tambah Jadwal -->
     <div class="modal fade" id="tambahJadwal" tabindex="-1">
