@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html dir="ltr" lang="en" class="no-outlines">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,14 +29,14 @@
     <link rel="stylesheet" href="assets/css/datatables.min.css">
     <link rel="stylesheet" href="assets/css/fullcalendar.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-   
+
     <!-- Select 2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    
+
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
@@ -43,6 +44,7 @@
     <!-- Sweet Alert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
     <div class="wrapper">
         <header class="navbar navbar-fixed">
@@ -59,7 +61,7 @@
         <aside class="sidebar" data-trigger="scrollbar">
             <div class="sidebar--nav">
                 <ul>
-                    <li>    
+                    <li>
                         <ul>
                             <li class="active">
                                 <a href="/">
@@ -74,26 +76,32 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('dosen.index') }}">
+                                <a href="{{ route('jadwal_2.index') }}">
                                     <i class="far fa-calendar-alt"></i>
+                                    <span>Jadwal Mata Kuliah 2</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('dosen.index') }}">
+                                    <i class="fa fa-users"></i>
                                     <span>Data Dosen</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('matkul.index') }}">
-                                    <i class="far fa-calendar-alt"></i>
+                                    <i class="fa fa-book"></i>
                                     <span>Data Matkul</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('ruangan.index') }}">
-                                    <i class="far fa-calendar-alt"></i>
+                                    <i class="fa fa-building"></i>
                                     <span>Data Ruangan</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('prodi.index') }}">
-                                    <i class="far fa-calendar-alt"></i>
+                                    <i class="fa fa-graduation-cap"></i>
                                     <span>Data Prodi</span>
                                 </a>
                             </li>
@@ -113,8 +121,8 @@
             </section>
             <footer class="main--footer main--footer-light">
                 <div class="">
-                Universitas Muhammadiyah Palangkaraya 2024
-            </div>
+                    Universitas Muhammadiyah Palangkaraya 2024
+                </div>
             </footer>
         </main>
     </div>
@@ -146,4 +154,5 @@
         });
     </script>
 </body>
+
 </html>

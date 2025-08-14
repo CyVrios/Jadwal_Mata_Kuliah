@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\Cdosen;
 use App\Http\Controllers\Cjadwal;
+use App\Http\Controllers\Cjadwal_2;
 use App\Http\Controllers\Cmatkul;
 use App\Http\Controllers\Cruangan;
 use App\Http\Controllers\Cprodi;
@@ -28,8 +29,10 @@ Route::delete('/prodi/bulk-delete', [Cprodi::class, 'bulkDelete'])->name('prodi.
 Route::delete('/ruangan/bulk-delete', [Cruangan::class, 'bulkDelete'])->name('ruangan.bulkDelete');
 Route::delete('/dosen/bulk-delete', [Cdosen::class, 'bulkDelete'])->name('dosen.bulkDelete');
 
+
 Route::resource('dosen', Cdosen::class);
 Route::resource('ruangan', Cruangan::class);
 Route::resource('matkul', Cmatkul::class);
 Route::resource('jadwal', Cjadwal::class);
+Route::resource('jadwal_2', Cjadwal_2::class);
 Route::resource('prodi', Cprodi::class);
