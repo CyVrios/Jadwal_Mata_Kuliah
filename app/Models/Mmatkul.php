@@ -22,4 +22,8 @@ class Mmatkul extends Model
     {
         return $this->hasMany(Mjadwal::class, 'kode_matkul');
     }
+    public function jadwal2()
+    {
+        return $this->hasMany(Mjadwal_2::class, 'kode_matkul');
+    }
 }

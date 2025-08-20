@@ -16,7 +16,7 @@
         }
     </style>
 
-    <h1 class="text-center my-3">Daftar Jadwal Mata Kuliah</h1>
+    <h1 class="text-center my-3">Jadwal Mata Kuliah 1</h1>
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tambah" style="margin-bottom: 20px">
         Tambah Data
@@ -27,8 +27,8 @@
     </a>
 
     <!-- Tombol -->
-    <button class="btn btn-primary" data-toggle="modal" data-target="#modalCekKetersediaan">
-        🔍 Cek Slot Kosong
+    <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#modalCekKetersediaan">
+        Cek Slot Kosong
     </button>
 
 
@@ -138,7 +138,7 @@
         </table>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Check jam & dosen & ruangan kosong-->
     <div class="modal fade" id="modalCekKetersediaan" tabindex="-1" role="dialog" aria-labelledby="modalCekLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
@@ -167,58 +167,20 @@
                         </div>
 
                         <!-- Hasil Slot Kosong -->
-                        <div class="row">
-                            <!-- Jam Kosong -->
-                            <div class="col-md-4">
-                                <h6>Jam Kosong</h6>
-                                <div class="table-responsive border rounded p-2">
-                                    <table class="table table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Jam Mulai</th>
-                                                <th>Jam Selesai</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="jamKosongTable">
-                                            <!-- Diisi dari JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Ruangan Kosong -->
-                            <div class="col-md-4">
-                                <h6>Ruangan Kosong</h6>
-                                <div class="table-responsive border rounded p-2">
-                                    <table class="table table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Ruangan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="ruanganKosongTable">
-                                            <!-- Diisi dari JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Dosen Kosong -->
-                            <div class="col-md-4">
-                                <h6>Dosen Kosong</h6>
-                                <div class="table-responsive border rounded p-2">
-                                    <table class="table table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Dosen</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="dosenKosongTable">
-                                            <!-- Diisi dari JS -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <div class="table-responsive border rounded p-2">
+                            <table class="table table-bordered table-sm">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Jam Mulai</th>
+                                        <th>Jam Selesai</th>
+                                        <th>Ruangan Kosong</th>
+                                        <th>Dosen Kosong</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="slotKosongTable">
+                                    <!-- Diisi dari JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -230,6 +192,7 @@
             </div>
         </div>
     </div>
+
 
 
 
@@ -656,7 +619,6 @@
                 e.preventDefault();
 
                 let hari = $('#hari').val();
-
                 if (!hari) {
                     alert("Silakan pilih hari terlebih dahulu!");
                     return;
@@ -670,49 +632,30 @@
                         hari: hari
                     },
                     success: function(res) {
+                        $('#slotKosongTable').empty();
+
                         if (res.hasil && Array.isArray(res.hasil) && res.hasil.length > 0) {
-                            // Kosongkan dulu isi tabel
-                            $('#jamKosongTable').empty();
-                            $('#ruanganKosongTable').empty();
-                            $('#dosenKosongTable').empty();
-
                             res.hasil.forEach(slot => {
-                                // Tambah baris untuk jam kosong
-                                $('#jamKosongTable').append(`
-                <tr>
-                    <td>${slot.jam_mulai}</td>
-                    <td>${slot.jam_selesai}</td>
-                </tr>
-            `);
+                                let ruanganList = slot.ruangan_kosong.length ? slot
+                                    .ruangan_kosong.join(", ") : "-";
+                                let dosenList = slot.dosen_kosong.length ? slot
+                                    .dosen_kosong.join(", ") : "-";
 
-                                // Tambah ruangan kosong (dalam 1 row, bisa banyak)
-                                if (slot.ruangan_kosong.length > 0) {
-                                    slot.ruangan_kosong.forEach(nama => {
-                                        $('#ruanganKosongTable').append(
-                                            `<tr><td>${nama}</td></tr>`);
-                                    });
-                                } else {
-                                    $('#ruanganKosongTable').append(
-                                        '<tr><td>-</td></tr>');
-                                }
-
-                                // Tambah dosen kosong
-                                if (slot.dosen_kosong.length > 0) {
-                                    slot.dosen_kosong.forEach(nama => {
-                                        $('#dosenKosongTable').append(
-                                            `<tr><td>${nama}</td></tr>`);
-                                    });
-                                } else {
-                                    $('#dosenKosongTable').append(
-                                    '<tr><td>-</td></tr>');
-                                }
+                                $('#slotKosongTable').append(`
+                            <tr>
+                                <td>${slot.jam_mulai}</td>
+                                <td>${slot.jam_selesai}</td>
+                                <td>${ruanganList}</td>
+                                <td>${dosenList}</td>
+                            </tr>
+                        `);
                             });
                         } else {
-                            // Tidak ada data
-                            $('#jamKosongTable').html(
-                                '<tr><td colspan="2">Tidak ada data.</td></tr>');
-                            $('#ruanganKosongTable').html('<tr><td>Tidak ada data.</td></tr>');
-                            $('#dosenKosongTable').html('<tr><td>Tidak ada data.</td></tr>');
+                            $('#slotKosongTable').html(`
+                        <tr>
+                            <td colspan="4" class="text-center">Tidak ada data slot kosong</td>
+                        </tr>
+                    `);
                         }
                     },
                     error: function(xhr, status, error) {
@@ -723,6 +666,7 @@
             });
         });
     </script>
+
 
 
 

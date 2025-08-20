@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Cdosen;
 use App\Http\Controllers\Cjadwal;
 use App\Http\Controllers\Cjadwal_2;
@@ -12,6 +13,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// route untuk jadwal 1
 Route::post('/matkul/import', [Cimport::class, 'import'])->name('matkul.import');
 Route::get('/jadwal/export', [Cjadwal::class, 'export'])->name('jadwal.export');
 Route::get('/check-available-rooms', [Cjadwal::class, 'checkAvailableRooms']);
@@ -20,6 +22,21 @@ Route::post('/jadwal/check-kelas-semester', [Cjadwal::class, 'checkKelasSemester
 Route::post('/jadwal/cek-slot', [Cjadwal::class, 'cekSlotKosong'])->name('jadwal.cekSlotKosong');
 Route::post('/jadwal/cek-slot-kosong', [Cjadwal::class, 'cekSlotKosong'])->name('jadwal.cekSlotKosong');
 
+//route untuk jadwal 2
+Route::prefix('jadwal-2')->name('jadwal_2.')->group(function () {
+    Route::get('/', [Cjadwal_2::class, 'index'])->name('index');
+    Route::post('/store', [Cjadwal_2::class, 'store'])->name('store');
+
+    Route::get('/export', [Cjadwal_2::class, 'export'])->name('export');
+
+    Route::get('/check-available-rooms', [Cjadwal_2::class, 'checkAvailableRooms'])->name('checkAvailableRooms');
+    Route::post('/check-dosen', [Cjadwal_2::class, 'checkDosen'])->name('checkDosen');
+    Route::post('/check-kelas-smt', [Cjadwal_2::class, 'checkKelasSemester'])->name('checkKelasSemester');
+    Route::post('/cek-slot-kosong', [Cjadwal_2::class, 'cekSlotKosong'])->name('cekSlotKosong');
+    Route::delete('/bulk-delete', [Cjadwal_2::class, 'bulkDelete'])->name('bulkDelete');
+    Route::get('/{id}/edit', [Cjadwal_2::class, 'edit'])->name('edit');
+    Route::put('/{id}', [Cjadwal_2::class, 'update'])->name('update');
+});
 
 
 
